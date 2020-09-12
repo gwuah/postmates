@@ -9,12 +9,10 @@ import (
 	myValidator "github.com/gwuah/api/utils/validator"
 )
 
-// CreateCustomerRequest - create customer request object
 type CreateCustomerRequest struct {
 	Phone string `json:"phone" validate:"required"`
 }
 
-// ListCustomers - returns list of customers
 func (h *Handler) ListCustomers(c *gin.Context) {
 	var customers []models.Customer
 
@@ -31,7 +29,6 @@ func (h *Handler) ListCustomers(c *gin.Context) {
 	})
 }
 
-// ViewCustomer - returns a single customer by ID
 func (h *Handler) ViewCustomer(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -56,7 +53,6 @@ func (h *Handler) ViewCustomer(c *gin.Context) {
 	return
 }
 
-// CreateCustomer - creates a new customer and returns it
 func (h *Handler) CreateCustomer(c *gin.Context) {
 	req := new(CreateCustomerRequest)
 	if err := c.ShouldBindJSON(req); err != nil {
