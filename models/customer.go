@@ -4,6 +4,7 @@ import "github.com/jinzhu/gorm"
 
 type Customer struct {
 	gorm.Model
+	ID        uint    `gorm:"primary_key" json:"id"`
 	Status    string  `json:"status"`
 	Phone     string  `json:"phone"`
 	FirstName string  `json:"firstName"`
