@@ -7,7 +7,9 @@ import (
 	"os/signal"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/gwuah/api/middleware"
+	"github.com/gwuah/api/utils/validator"
 )
 
 type Config struct {
@@ -26,6 +28,7 @@ func healthCheck(c *gin.Context) {
 }
 
 func New() Server {
+	binding.Validator = new(validator.DefaultValidator)
 	server := gin.Default()
 	server.Use(middleware.CORS())
 	server.GET("/", healthCheck)
