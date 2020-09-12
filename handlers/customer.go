@@ -10,7 +10,19 @@ type CreateCustomerRequest struct {
 }
 
 func (h *Handler) ListCustomers(c *gin.Context) {
+	var customers []models.Customer
 
+	if err := h.DB.Find(&customers).Error; err != nil {
+		c.JSON(500, gin.H{
+			"message": "Failed To Retrieve Customers",
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"message":   "Success",
+		"customers": customers,
+	})
 }
 
 func (h *Handler) ViewCustomer(c *gin.Context) {
@@ -19,12 +31,15 @@ func (h *Handler) ViewCustomer(c *gin.Context) {
 	result := h.DB.First(customer, id)
 	if result.Error != nil {
 		c.JSON(500, gin.H{
-			"message": "Error",
+			"message": "Failed To Retrieve Customer",
 		})
 		return
 	}
 
-	c.JSON(200, customer)
+	c.JSON(200, gin.H{
+		"message":  "Success",
+		"customer": customer,
+	})
 	return
 }
 
@@ -33,7 +48,7 @@ func (h *Handler) CreateCustomer(c *gin.Context) {
 	req := new(CreateCustomerRequest)
 	if c.BindJSON(req) != nil {
 		c.JSON(500, gin.H{
-			"message": "Error",
+			"message": "Failed to create customer",
 		})
 		return
 	}
@@ -41,10 +56,19 @@ func (h *Handler) CreateCustomer(c *gin.Context) {
 	customer := models.Customer{
 		Phone: req.Phone,
 	}
+
 	result := h.DB.Create(&customer)
+
+	if result.Error != nil {
+		c.JSON(500, gin.H{
+			"message": "Failed To Retrieve Customer",
+		})
+		return
+	}
+
 	if result.RowsAffected > 0 {
 		c.JSON(200, gin.H{
-			"message":  "success",
+			"message":  "Success",
 			"customer": customer,
 		})
 		return

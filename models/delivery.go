@@ -1,9 +1,7 @@
 package models
 
-import "github.com/jinzhu/gorm"
-
 type Delivery struct {
-	gorm.Model
+	Model
 	Status               string   `json:"status"`
 	OriginLongitude      float64  `json:"originLongitude"`
 	OriginLatitude       float64  `json:"originLatitude"`

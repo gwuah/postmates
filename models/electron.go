@@ -1,9 +1,7 @@
 package models
 
-import "github.com/jinzhu/gorm"
-
 type Electron struct {
-	gorm.Model
+	Model
 	FirstName  string  `json:"firstName"`
 	LastName   string  `json:"lastName"`
 	MiddleName string  `json:"middleName"`

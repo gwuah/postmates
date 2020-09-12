@@ -11,14 +11,14 @@ func main() {
 
 	db, err := postgres.New(&postgres.Config{
 		User:     "postgres",
-		Password: "mtn_loyalty",
+		Password: "password",
 		DBName:   "electra_dev",
 		SSLMode:  "disable",
 		Host:     "127.0.0.1",
 	})
 
 	if err != nil {
-		panic("Failed To Connect To PostGresSQL")
+		panic("Failed To Connect To Postgresql database")
 	}
 
 	err = postgres.SetupDatabase(db, &models.Customer{}, &models.Delivery{}, &models.Electron{}, &models.Order{})
@@ -28,9 +28,10 @@ func main() {
 	}
 
 	s := server.New()
-	e := s.Group("/v1")
 	h := handler.New(db)
-	h.Register(e)
+
+	routes := s.Group("/v1")
+	h.Register(routes)
 
 	server.Start(&s, &server.Config{
 		Port: ":8080",

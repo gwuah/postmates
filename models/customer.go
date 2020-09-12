@@ -1,12 +1,20 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"time"
+)
+
+type Model struct {
+	ID        uint       `gorm:"primary_key" json:"id"`
+	CreatedAt time.Time  `json:"createdAt"`
+	UpdatedAt time.Time  `json:"updatedAt"`
+	DeletedAt *time.Time `sql:"index" json:"deletedAt"`
+}
 
 type Customer struct {
-	gorm.Model
-	ID        uint    `gorm:"primary_key" json:"id"`
+	Model
 	Status    string  `json:"status"`
-	Phone     string  `json:"phone"`
+	Phone     string  `gorm:"not null;unique" json:"phone"`
 	FirstName string  `json:"firstName"`
 	LastName  string  `json:"lastName"`
 	Email     string  `json:"email"`
