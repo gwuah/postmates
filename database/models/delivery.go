@@ -16,4 +16,6 @@ type Delivery struct {
 	Customer             Customer `json:"customer"`
 	OrderID              int      `json:"orderId"`
 	Order                Order    `json:"order"`
+	ProductID            int      `json:"productId"`
+	Product              Product  `json:"product"`
 }

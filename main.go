@@ -4,9 +4,9 @@ import (
 	"log"
 	"os"
 
+	"github.com/gwuah/api/database/models"
+	"github.com/gwuah/api/database/postgres"
 	handler "github.com/gwuah/api/handlers"
-	"github.com/gwuah/api/models"
-	"github.com/gwuah/api/postgres"
 	"github.com/gwuah/api/server"
 	"github.com/joho/godotenv"
 )
