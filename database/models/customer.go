@@ -20,4 +20,7 @@ type Customer struct {
 	Email     string  `json:"email"`
 	Longitude float64 `json:"longitude"`
 	Latitude  float64 `json:"latitude"`
+	Code      int     `json:"code"`
+	Active    bool    `json:"active" gorm:"default=false"`
+	Token     string  `json:"-"`
 }

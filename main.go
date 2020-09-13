@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/sha1"
 	"log"
 	"os"
 
@@ -9,6 +10,8 @@ import (
 	"github.com/gwuah/api/database/postgres"
 	handler "github.com/gwuah/api/handlers"
 	"github.com/gwuah/api/server"
+	"github.com/gwuah/api/utils/jwt"
+	"github.com/gwuah/api/utils/secure"
 	"github.com/joho/godotenv"
 )
 
@@ -44,8 +47,15 @@ func main() {
 		database.SeedCustomers,
 	})
 
+	sec := secure.New(1, sha1.New())
+
+	jwt, err := jwt.New("HS256", os.Getenv("JWT_SECRET"), 15, 64)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	s := server.New()
-	h := handler.New(db)
+	h := handler.New(db, jwt, sec)
 
 	routes := s.Group("/v1")
 	h.Register(routes)
