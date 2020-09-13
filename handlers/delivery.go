@@ -1,8 +1,9 @@
 package handler
 
 import (
-	"fmt"
+	"log"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gwuah/api/database/models"
@@ -17,9 +18,9 @@ type Coord struct {
 type DeliveryRequest struct {
 	Origin      Coord  `json:"origin"`
 	Destination Coord  `json:"destination"`
-	ProductId   int    `json:"productId"`
+	ProductId   uint   `json:"productId"`
 	Notes       string `json:"notes"`
-	CustomerID  int    `json:"customerId"`
+	CustomerID  uint   `json:"customerId"`
 }
 
 func (h *Handler) ListDeliveries(c *gin.Context) {
@@ -50,20 +51,46 @@ func (h *Handler) CreateDelivery(c *gin.Context) {
 		return
 	}
 
-	delivery := models.Delivery{
-		OriginLatitude:       data.Origin.Latitude,
-		OriginLongitude:      data.Origin.Longitude,
-		DestinationLatitude:  data.Destination.Latitude,
-		DestinationLongitude: data.Destination.Longitude,
-		Notes:                data.Notes,
-		CustomerID:           data.CustomerID,
+	if strings.ToLower(product.Name) == "express" {
+		order := models.Order{ElectronID: 1}
+
+		if err := h.DB.Create(&order).Error; err != nil {
+			log.Println("Failed To Create Order", err)
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Request Failed",
+			})
+			return
+		}
+
+		delivery := models.Delivery{
+			OriginLatitude:       data.Origin.Latitude,
+			OriginLongitude:      data.Origin.Longitude,
+			DestinationLatitude:  data.Destination.Latitude,
+			DestinationLongitude: data.Destination.Longitude,
+			Notes:                data.Notes,
+			OrderID:              order.ID,
+			ProductID:            data.ProductId,
+			CustomerID:           data.CustomerID,
+		}
+
+		if err := h.DB.Create(&delivery).Error; err != nil {
+			log.Printf("Failed to create delivery for order [ %d ] ", order.ID)
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Request Failed",
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"message":  "Success",
+			"delivery": delivery,
+		})
+
+	} else if strings.ToLower(product.Name) == "pool" {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Work on going for this product",
+		})
+
 	}
-
-	fmt.Println(delivery)
-
-	c.JSON(http.StatusOK, gin.H{
-		"message":  "Success",
-		"delivery": product,
-	})
 
 }

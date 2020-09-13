@@ -40,6 +40,8 @@ func main() {
 
 	database.RunSeeds(db, []database.SeedFn{
 		database.SeedProducts,
+		database.SeedElectrons,
+		database.SeedCustomers,
 	})
 
 	s := server.New()

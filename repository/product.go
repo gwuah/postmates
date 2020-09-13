@@ -5,7 +5,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func (r *Repository) FindProduct(id int) (models.Product, *gorm.DB) {
+func (r *Repository) FindProduct(id uint) (models.Product, *gorm.DB) {
 
 	product := models.Product{}
 
