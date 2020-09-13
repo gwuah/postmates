@@ -4,33 +4,28 @@ import (
 	"log"
 	"os"
 
+	"github.com/gwuah/api/database"
+	"github.com/gwuah/api/database/models"
+	"github.com/gwuah/api/database/postgres"
 	handler "github.com/gwuah/api/handlers"
-	"github.com/gwuah/api/models"
-	"github.com/gwuah/api/postgres"
 	"github.com/gwuah/api/server"
 	"github.com/joho/godotenv"
 )
 
 func main() {
 	err := godotenv.Load()
+
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
-	dbHost := os.Getenv("DB_HOST")
-	dbPort := os.Getenv("DB_PORT")
-	dbName := os.Getenv("DB_NAME")
-	dbUser := os.Getenv("DB_USER")
-	dbPass := os.Getenv("DB_PASS")
-	dbSSLMode := os.Getenv("DB_SSLMODE")
-
 	db, err := postgres.New(&postgres.Config{
-		User:     dbUser,
-		Password: dbPass,
-		DBName:   dbName,
-		SSLMode:  dbSSLMode,
-		Host:     dbHost,
-		Port:     dbPort,
+		User:     os.Getenv("DB_USER"),
+		Password: os.Getenv("DB_PASS"),
+		DBName:   os.Getenv("DB_NAME"),
+		SSLMode:  os.Getenv("DB_SSLMODE"),
+		Host:     os.Getenv("DB_HOST"),
+		Port:     os.Getenv("DB_PORT"),
 	})
 
 	if err != nil {
@@ -42,6 +37,12 @@ func main() {
 	if err != nil {
 		log.Fatal("Failed To Setup Tables")
 	}
+
+	database.RunSeeds(db, []database.SeedFn{
+		database.SeedProducts,
+		database.SeedElectrons,
+		database.SeedCustomers,
+	})
 
 	s := server.New()
 	h := handler.New(db)

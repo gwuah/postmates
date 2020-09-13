@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"github.com/gwuah/api/models"
+	"github.com/gwuah/api/database/models"
 	myValidator "github.com/gwuah/api/utils/validator"
 )
 
@@ -32,8 +32,8 @@ func (h *Handler) ListCustomers(c *gin.Context) {
 func (h *Handler) ViewCustomer(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "customer id not found",
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": "Customer ID not found",
 		})
 	}
 

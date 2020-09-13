@@ -12,8 +12,10 @@ type Delivery struct {
 	InitialCost          float64  `json:"initialCost"`
 	Completed            bool     `json:"completed"`
 	Notes                string   `json:"notes"`
-	CustomerID           int      `json:"customerId"`
+	CustomerID           uint     `json:"customerId"`
 	Customer             Customer `json:"customer"`
-	OrderID              int      `json:"orderId"`
+	OrderID              uint     `json:"orderId"`
 	Order                Order    `json:"order"`
+	ProductID            uint     `json:"productId"`
+	Product              Product  `json:"product"`
 }
