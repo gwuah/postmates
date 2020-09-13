@@ -52,7 +52,7 @@ func (h *Handler) CreateDelivery(c *gin.Context) {
 	}
 
 	if strings.ToLower(product.Name) == "express" {
-		order := models.Order{ElectronID: 1}
+		order := models.Order{}
 
 		if err := h.DB.Create(&order).Error; err != nil {
 			log.Println("Failed To Create Order", err)
