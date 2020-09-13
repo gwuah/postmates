@@ -3,6 +3,7 @@ package handler
 import (
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -27,8 +28,46 @@ func (h *Handler) ListDeliveries(c *gin.Context) {
 
 }
 
-func (h *Handler) ViewDeliveries(c *gin.Context) {
+func (h *Handler) ViewDelivery(c *gin.Context) {
+	stringifiedId := c.Param("id")
+	if stringifiedId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Delivery id required",
+		})
+		return
+	}
 
+	id, err := strconv.ParseUint(stringifiedId, 10, 64)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Failed to parse delivery id",
+		})
+		return
+	}
+
+	delivery, result := h.Repo.GetDelivery(id)
+
+	if delivery.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": "Delivery not found",
+		})
+		return
+
+	}
+
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Failed To Retrieve Customer",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":  "Success",
+		"delivery": delivery,
+	})
+	return
 }
 
 func (h *Handler) CreateDelivery(c *gin.Context) {

@@ -2,15 +2,18 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/gwuah/api/repository"
 	"gorm.io/gorm"
 )
 
 type Handler struct {
-	DB *gorm.DB
+	DB   *gorm.DB
+	Repo *repository.Repository
 }
 
-func New(db *gorm.DB) *Handler {
-	return &Handler{db}
+func New(DB *gorm.DB) *Handler {
+	repo := repository.New(DB)
+	return &Handler{DB, repo}
 }
 
 func (h *Handler) Register(v1 *gin.RouterGroup) {
@@ -22,7 +25,7 @@ func (h *Handler) Register(v1 *gin.RouterGroup) {
 
 	deliveries := v1.Group("/deliveries")
 	deliveries.GET("/", h.ListDeliveries)
-	deliveries.GET("/:id", h.ViewDeliveries)
+	deliveries.GET("/:id", h.ViewDelivery)
 	deliveries.POST("/", h.CreateDelivery)
 
 	orders := v1.Group("/orders")

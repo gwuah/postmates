@@ -32,8 +32,8 @@ func (h *Handler) ListCustomers(c *gin.Context) {
 func (h *Handler) ViewCustomer(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "customer id not found",
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": "Customer ID not found",
 		})
 	}
 
