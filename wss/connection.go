@@ -12,7 +12,7 @@ const (
 	writeWait      = 10 * time.Second
 	pongWait       = 60 * time.Second
 	pingPeriod     = (pongWait * 9) / 10
-	maxMessageSize = 512
+	maxMessageSize = 1024
 )
 
 var upgrader = websocket.Upgrader{
@@ -52,7 +52,6 @@ func (w *WSConnection) getIncomingMessages() {
 			w.processMessage(message)
 		}()
 
-		w.hub.broadcast <- message
 	}
 }
 
