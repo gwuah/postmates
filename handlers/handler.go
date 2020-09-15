@@ -6,6 +6,7 @@ import (
 	"github.com/gwuah/api/repository"
 	"github.com/gwuah/api/utils/jwt"
 	"github.com/gwuah/api/utils/secure"
+	"github.com/gwuah/api/wss"
 	"gorm.io/gorm"
 )
 
@@ -22,6 +23,9 @@ func New(DB *gorm.DB, jwt jwt.Service, sec *secure.Service) *Handler {
 }
 
 func (h *Handler) Register(v1 *gin.RouterGroup) {
+
+	wss := wss.New()
+	v1.GET("/customer/realtime/:id", wss.HandleWebsocketConnection)
 
 	v1.POST("/signup", h.Signup)
 	v1.POST("/login", h.Login)
