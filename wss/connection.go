@@ -1,6 +1,7 @@
 package wss
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -26,11 +27,11 @@ type WSConnection struct {
 	conn           *websocket.Conn
 	send           chan []byte
 	processMessage func(msg []byte)
+	entity         string
 }
 
 func (w *WSConnection) getIncomingMessages() {
 	defer func() {
-		log.Println("Unregistering  ...")
 		w.hub.unregister <- w
 		w.conn.Close()
 	}()
@@ -84,4 +85,24 @@ func (w *WSConnection) writeMessageToClient() {
 			}
 		}
 	}
+}
+
+func (w *WSConnection) getIdBasedOnType() string {
+	if w.entity == "electron" {
+		return fmt.Sprintf("electron_%s", w.id)
+	} else {
+		return fmt.Sprintf("customer_%s", w.id)
+	}
+}
+
+func (w *WSConnection) joinRoom(name string) {
+	w.hub.joinRoomQueue <- RoomRequest{name: name, w: w}
+}
+
+func (w *WSConnection) leaveRoom(name string) {
+	w.hub.leaveRoomQueue <- RoomRequest{name: name, w: w}
+}
+
+func (w *WSConnection) sendMessage(message []byte) {
+	w.send <- message
 }

@@ -17,6 +17,8 @@ function connect(id) {
   });
 }
 
+function parseMessage(message) {}
+
 function main() {
   connect(process.argv[2]);
 }

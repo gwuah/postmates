@@ -25,7 +25,9 @@ func New(DB *gorm.DB, jwt jwt.Service, sec *secure.Service) *Handler {
 func (h *Handler) Register(v1 *gin.RouterGroup) {
 
 	wss := wss.New()
-	v1.GET("/customer/realtime/:id", wss.HandleWebsocketConnection)
+
+	v1.GET("/customer/realtime/:id", wss.HandleWebsocketConnection("customer"))
+	v1.GET("/electron/realtime/:id", wss.HandleWebsocketConnection("electron"))
 
 	v1.POST("/signup", h.Signup)
 	v1.POST("/login", h.Login)
