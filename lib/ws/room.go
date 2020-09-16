@@ -1,4 +1,4 @@
-package dispatch
+package ws
 
 type RoomRequest struct {
 	w    *WSConnection

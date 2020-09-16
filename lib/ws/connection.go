@@ -1,4 +1,4 @@
-package dispatch
+package ws
 
 import (
 	"fmt"
@@ -89,15 +89,15 @@ func (w *WSConnection) getIdBasedOnType() string {
 	}
 }
 
-func (w *WSConnection) joinRoom(name string) {
+func (w *WSConnection) JoinRoom(name string) {
 	w.Hub.joinRoomQueue <- RoomRequest{name: name, w: w}
 }
 
-func (w *WSConnection) leaveRoom(name string) {
+func (w *WSConnection) LeaveRoom(name string) {
 	w.Hub.leaveRoomQueue <- RoomRequest{name: name, w: w}
 }
 
-func (w *WSConnection) sendMessage(message []byte) {
+func (w *WSConnection) SendMessage(message []byte) {
 	// there's a minor problem here..
 	// when the client disconnects, we close the Send channel..
 	// so if we try to Send a message after a client disconnects, our app crashes cos our guy here blocks forever.

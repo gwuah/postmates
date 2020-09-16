@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/gwuah/api/lib/dispatch"
+	"github.com/gwuah/api/lib/ws"
 	"github.com/gwuah/api/shared"
 )
 
-func (h *Handler) handleDeliveryRequest(message []byte, ws *dispatch.WSConnection) {
+func (h *Handler) handleDeliveryRequest(message []byte, ws *ws.WSConnection) {
 	var data shared.DeliveryRequest
 	err := json.Unmarshal(message, &data)
 	if err != nil {
@@ -16,9 +16,11 @@ func (h *Handler) handleDeliveryRequest(message []byte, ws *dispatch.WSConnectio
 		return
 	}
 
+	ws.SendMessage([]byte("Delivery Placed"))
+
 }
 
-func (h *Handler) handleDeliveryCancellation(message []byte, ws *dispatch.WSConnection) {
+func (h *Handler) handleDeliveryCancellation(message []byte, ws *ws.WSConnection) {
 	var data shared.CancelDeliveryRequest
 	err := json.Unmarshal(message, &data)
 	if err != nil {
@@ -26,5 +28,7 @@ func (h *Handler) handleDeliveryCancellation(message []byte, ws *dispatch.WSConn
 		return
 
 	}
+
+	ws.SendMessage([]byte("Delivery Cancelled"))
 
 }

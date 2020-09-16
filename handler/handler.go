@@ -2,7 +2,7 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/gwuah/api/lib/dispatch"
+	"github.com/gwuah/api/lib/ws"
 	"github.com/gwuah/api/middleware"
 	"github.com/gwuah/api/repository"
 	"github.com/gwuah/api/services"
@@ -18,13 +18,13 @@ type Handler struct {
 	Sec                  *secure.Service
 	Services             *services.Services
 	maxMessageTypeLength int
-	Hub                  *dispatch.Hub
+	Hub                  *ws.Hub
 }
 
 func New(DB *gorm.DB, jwt jwt.Service, sec *secure.Service) *Handler {
 	repo := repository.New(DB)
 	services := services.New(repo)
-	hub := dispatch.NewHub()
+	hub := ws.NewHub()
 	go hub.Run()
 
 	return &Handler{

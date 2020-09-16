@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"github.com/gwuah/api/lib/dispatch"
+	"github.com/gwuah/api/lib/ws"
 )
 
 var upgrader = websocket.Upgrader{
@@ -49,7 +49,7 @@ func (h *Handler) getTypeOfMessage(message []byte) []byte {
 
 }
 
-func (h *Handler) processIncomingMessage(message []byte, ws *dispatch.WSConnection) {
+func (h *Handler) processIncomingMessage(message []byte, ws *ws.WSConnection) {
 	switch string(h.getTypeOfMessage(message)) {
 	case MESSAGE_TYPES["DeliveryRequest"]:
 		h.handleDeliveryRequest(message, ws)
@@ -70,7 +70,7 @@ func (h *Handler) handleConnection(entity string) func(c *gin.Context) {
 			return
 		}
 
-		wsConnection := &dispatch.WSConnection{
+		wsConnection := &ws.WSConnection{
 			Hub:            h.Hub,
 			Send:           make(chan []byte),
 			Conn:           conn,
