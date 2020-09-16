@@ -1,4 +1,4 @@
-package wss
+package dispatch
 
 import (
 	"log"
@@ -46,12 +46,11 @@ func (h *Hub) run() {
 	for {
 		select {
 		case conn := <-h.register:
-			log.Printf("Registering %s \n", conn.getIdBasedOnType())
+			log.Println("Registering ", conn.getIdBasedOnType())
 			h.clients[conn.getIdBasedOnType()] = conn
 
 		case conn := <-h.unregister:
-			log.Printf("Unregistering %s\n", conn.getIdBasedOnType())
-
+			log.Println("Unregistering ", conn.getIdBasedOnType())
 			if _, ok := h.clients[conn.getIdBasedOnType()]; ok {
 				delete(h.clients, conn.getIdBasedOnType())
 				close(conn.send)

@@ -1,4 +1,4 @@
-package wss
+package dispatch
 
 import (
 	"fmt"
@@ -26,7 +26,7 @@ type WSConnection struct {
 	room           string
 	conn           *websocket.Conn
 	send           chan []byte
-	processMessage func(msg []byte)
+	processMessage func(msg []byte, ws *WSConnection)
 	entity         string
 }
 
@@ -49,7 +49,7 @@ func (w *WSConnection) getIncomingMessages() {
 		}
 
 		go func() {
-			w.processMessage(message)
+			w.processMessage(message, w)
 		}()
 
 	}

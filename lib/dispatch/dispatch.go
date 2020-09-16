@@ -4,9 +4,10 @@ package dispatch
 // Matching and Trip Management will be handled here
 
 import (
-	"fmt"
+	"encoding/json"
+	"log"
 
-	"github.com/gwuah/api/wss"
+	"github.com/gin-gonic/gin"
 )
 
 type BaseMessage struct {
@@ -19,12 +20,17 @@ type Coord struct {
 }
 
 type DeliveryRequest struct {
-	BaseMessage BaseMessage `json:"baseMessage"`
+	BaseMessage BaseMessage `json:"meta"`
 	Origin      Coord       `json:"origin"`
 	Destination Coord       `json:"destination"`
 	ProductId   uint        `json:"productId"`
 	Notes       string      `json:"notes"`
 	CustomerID  uint        `json:"customerId"`
+}
+
+type CancelDelivery struct {
+	BaseMessage BaseMessage `json:"meta"`
+	TripId      uint        `json:"tripId"`
 }
 
 var MESSAGE_TYPES = map[string]string{
@@ -35,16 +41,17 @@ var MESSAGE_TYPES = map[string]string{
 
 type Dispatch struct {
 	maxMessageTypeLength int
+	hub                  *Hub
 }
 
 func New() *Dispatch {
-	return &Dispatch{
-		maxMessageTypeLength: getLength(MESSAGE_TYPES["DeliveryRequest"]),
-	}
-}
+	hub := NewHub()
+	go hub.run()
 
-func getLength(s string) int {
-	return len(s)
+	return &Dispatch{
+		hub:                  hub,
+		maxMessageTypeLength: len(MESSAGE_TYPES["DeliveryRequest"]),
+	}
 }
 
 func (d *Dispatch) getTypeOfMessage(message []byte) []byte {
@@ -53,29 +60,78 @@ func (d *Dispatch) getTypeOfMessage(message []byte) []byte {
 	// custom algorithm, ask @gwuah for explanation
 	start := 16
 	end := start + d.maxMessageTypeLength + 2
-	head := message[start:end]
+	payload := message[start:end]
 
-	for {
-		length := len(head)
-		if length > 0 && head[length-1] != byte('"') {
-			head = head[:length-1]
-		} else {
+	numberOfQuotesSeen := 0
+	head := []byte{}
+
+	for i := 0; i < len(payload); i++ {
+		value := payload[i]
+
+		if numberOfQuotesSeen == 2 {
 			break
 		}
+
+		if value == byte('"') {
+			numberOfQuotesSeen++
+		}
+
+		head = append(head, value)
+
 	}
 
-	return head
+	return head[1 : len(head)-1]
 
 }
 
-func (d *Dispatch) processIncomingMessage(message []byte, ws *wss.WSConnection) {
-	// we parse the incoming message and parse it to the right handler to handle it
+func (d *Dispatch) processIncomingMessage(message []byte, ws *WSConnection) {
 	switch string(d.getTypeOfMessage(message)) {
 	case MESSAGE_TYPES["DeliveryRequest"]:
-		fmt.Print("New Delivery Request")
+		ws.sendMessage([]byte("New Delivery Request"))
+		var request DeliveryRequest
+		err := json.Unmarshal(message, &request)
+		if err != nil {
+			log.Println("Failed to parse message")
+		}
+		log.Println(request)
 	case MESSAGE_TYPES["CancelDelivery"]:
-		fmt.Print("Cancel Delivery Request")
+		ws.sendMessage([]byte("Cancel Delivery Request"))
+		var request CancelDelivery
+		err := json.Unmarshal(message, &request)
+		if err != nil {
+			log.Println("Failed to parse message", err)
+		}
+		log.Println(request)
 	case MESSAGE_TYPES["GetEstimate"]:
-		fmt.Print("Get Estimate Request")
+		ws.sendMessage([]byte("Get Estimate Request"))
+	default:
+		log.Println("No Match")
+	}
+}
+
+func (d *Dispatch) HandleConnection(entity string) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		id := c.Param("id")
+		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+
+		if err != nil {
+			log.Println("Failed to setup websocket conn ..", err)
+			return
+		}
+
+		wsConnection := &WSConnection{
+			hub:            d.hub,
+			send:           make(chan []byte),
+			conn:           conn,
+			id:             id,
+			entity:         entity,
+			processMessage: d.processIncomingMessage,
+		}
+
+		d.hub.register <- wsConnection
+
+		go wsConnection.getIncomingMessages()
+		go wsConnection.writeMessageToClient()
+
 	}
 }
