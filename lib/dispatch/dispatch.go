@@ -1,6 +1,6 @@
 package dispatch
 
-// This is the core of athena.
+// This is the handlers of athena.
 // Matching and Trip Management will be handled here
 
 import (
@@ -8,30 +8,12 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gwuah/api/repository"
+	"github.com/gwuah/api/services"
+	"github.com/gwuah/api/shared"
+
+	"gorm.io/gorm"
 )
-
-type BaseMessage struct {
-	Type string `json:"type"`
-}
-
-type Coord struct {
-	Longitude float64 `json:"longitude" validate:"required"`
-	Latitude  float64 `json:"latitude" validate:"required"`
-}
-
-type DeliveryRequest struct {
-	BaseMessage BaseMessage `json:"meta"`
-	Origin      Coord       `json:"origin"`
-	Destination Coord       `json:"destination"`
-	ProductId   uint        `json:"productId"`
-	Notes       string      `json:"notes"`
-	CustomerID  uint        `json:"customerId"`
-}
-
-type CancelDelivery struct {
-	BaseMessage BaseMessage `json:"meta"`
-	TripId      uint        `json:"tripId"`
-}
 
 var MESSAGE_TYPES = map[string]string{
 	"DeliveryRequest": "DeliveryRequest",
@@ -42,14 +24,21 @@ var MESSAGE_TYPES = map[string]string{
 type Dispatch struct {
 	maxMessageTypeLength int
 	hub                  *Hub
+	services             *services.Services
+	repo                 *repository.Repository
 }
 
-func New() *Dispatch {
+func New(DB *gorm.DB) *Dispatch {
+	repo := repository.New(DB)
+	services := services.New(repo)
+
 	hub := NewHub()
 	go hub.run()
 
 	return &Dispatch{
+		repo:                 repo,
 		hub:                  hub,
+		services:             services,
 		maxMessageTypeLength: len(MESSAGE_TYPES["DeliveryRequest"]),
 	}
 }
@@ -87,21 +76,20 @@ func (d *Dispatch) getTypeOfMessage(message []byte) []byte {
 func (d *Dispatch) processIncomingMessage(message []byte, ws *WSConnection) {
 	switch string(d.getTypeOfMessage(message)) {
 	case MESSAGE_TYPES["DeliveryRequest"]:
-		ws.sendMessage([]byte("New Delivery Request"))
-		var request DeliveryRequest
-		err := json.Unmarshal(message, &request)
+		var data shared.DeliveryRequest
+		err := json.Unmarshal(message, &data)
 		if err != nil {
 			log.Println("Failed to parse message")
+			break
 		}
-		log.Println(request)
+		d.services.CreateNewDeliveryRequest(data)
 	case MESSAGE_TYPES["CancelDelivery"]:
-		ws.sendMessage([]byte("Cancel Delivery Request"))
-		var request CancelDelivery
-		err := json.Unmarshal(message, &request)
+		var data shared.CancelDeliveryRequest
+		err := json.Unmarshal(message, &data)
 		if err != nil {
 			log.Println("Failed to parse message", err)
 		}
-		log.Println(request)
+		d.services.CancelDelivery(data)
 	case MESSAGE_TYPES["GetEstimate"]:
 		ws.sendMessage([]byte("Get Estimate Request"))
 	default:

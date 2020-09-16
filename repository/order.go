@@ -2,18 +2,19 @@ package repository
 
 import (
 	"github.com/gwuah/api/database/models"
-	"gorm.io/gorm"
 )
 
 type CreateOrderSchema struct {
 	Phone string `json:"phone" validate:"required"`
 }
 
-func (r *Repository) CreateOrder(data CreateOrderSchema) (models.Order, *gorm.DB) {
-
+func (r *Repository) CreateOrder() (*models.Order, error) {
 	order := models.Order{}
 
-	result := r.DB.Create(&order)
+	if err := r.DB.Create(&order).Error; err != nil {
+		return nil, err
+	}
 
-	return order, result
+	return &order, nil
+
 }

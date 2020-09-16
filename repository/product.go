@@ -1,15 +1,22 @@
 package repository
 
 import (
+	"errors"
+
 	"github.com/gwuah/api/database/models"
-	"gorm.io/gorm"
 )
 
-func (r *Repository) FindProduct(id uint) (models.Product, *gorm.DB) {
+func (r *Repository) FindProduct(id uint) (*models.Product, error) {
 
 	product := models.Product{}
 
-	result := r.DB.First(&product, id)
+	if err := r.DB.First(&product, id).Error; err != nil {
+		return nil, err
+	}
 
-	return product, result
+	if product.ID == 0 {
+		return nil, errors.New("Product Doesn't Exist")
+	}
+
+	return &product, nil
 }

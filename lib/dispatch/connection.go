@@ -103,5 +103,8 @@ func (w *WSConnection) leaveRoom(name string) {
 }
 
 func (w *WSConnection) sendMessage(message []byte) {
+	// there's a minor problem here..
+	// when the client disconnects, we close the send channel..
+	// so if we try to send a message after a client disconnects, our app crashes cos our guy here blocks forever.
 	w.send <- message
 }

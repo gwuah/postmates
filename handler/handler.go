@@ -24,7 +24,7 @@ func New(DB *gorm.DB, jwt jwt.Service, sec *secure.Service) *Handler {
 
 func (h *Handler) Register(v1 *gin.RouterGroup) {
 
-	dispatch := dispatch.New()
+	dispatch := dispatch.New(h.DB)
 
 	v1.GET("/customer/realtime/:id", dispatch.HandleConnection("customer"))
 	v1.GET("/electron/realtime/:id", dispatch.HandleConnection("electron"))
@@ -38,20 +38,5 @@ func (h *Handler) Register(v1 *gin.RouterGroup) {
 	customers.GET("/", h.ListCustomers)
 	customers.GET("/:id", h.ViewCustomer)
 	customers.POST("/", h.CreateCustomer)
-
-	deliveries := v1.Group("/deliveries", middleware.JWT(h.JWT))
-	deliveries.GET("/", h.ListDeliveries)
-	deliveries.GET("/:id", h.ViewDelivery)
-	deliveries.POST("/", h.CreateDelivery)
-
-	orders := v1.Group("/orders", middleware.JWT(h.JWT))
-	orders.GET("/", h.ListOrders)
-	orders.GET("/:id", h.ViewOrder)
-	orders.POST("/", h.CreateOrder)
-
-	electrons := v1.Group("/electrons", middleware.JWT(h.JWT))
-	electrons.GET("/", h.ListElectrons)
-	electrons.GET("/:id", h.ViewElectron)
-	electrons.POST("/", h.CreateElectron)
 
 }
