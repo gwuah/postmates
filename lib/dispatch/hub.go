@@ -8,7 +8,7 @@ import (
 type Hub struct {
 	clients         map[string]*WSConnection
 	broadcast       chan []byte
-	register        chan *WSConnection
+	Register        chan *WSConnection
 	unregister      chan *WSConnection
 	rooms           map[string]*Room
 	createRoomQueue chan RoomRequest
@@ -20,7 +20,7 @@ type Hub struct {
 func NewHub() *Hub {
 	return &Hub{
 		broadcast:  make(chan []byte),
-		register:   make(chan *WSConnection),
+		Register:   make(chan *WSConnection),
 		unregister: make(chan *WSConnection),
 
 		clients: make(map[string]*WSConnection),
@@ -42,10 +42,10 @@ func (h *Hub) createRoom(name string) {
 	h.rooms[name] = NewRoom(name)
 }
 
-func (h *Hub) run() {
+func (h *Hub) Run() {
 	for {
 		select {
-		case conn := <-h.register:
+		case conn := <-h.Register:
 			log.Println("Registering ", conn.getIdBasedOnType())
 			h.clients[conn.getIdBasedOnType()] = conn
 
@@ -53,7 +53,7 @@ func (h *Hub) run() {
 			log.Println("Unregistering ", conn.getIdBasedOnType())
 			if _, ok := h.clients[conn.getIdBasedOnType()]; ok {
 				delete(h.clients, conn.getIdBasedOnType())
-				close(conn.send)
+				close(conn.Send)
 			}
 
 		case request := <-h.createRoomQueue:

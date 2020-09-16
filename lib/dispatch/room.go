@@ -38,14 +38,14 @@ func (room *Room) run() {
 		case request := <-room.leaveQueue:
 			if _, ok := room.members[request.w.getIdBasedOnType()]; ok {
 				delete(room.members, request.w.getIdBasedOnType())
-				close(request.w.send)
+				close(request.w.Send)
 			}
 		case message := <-room.broadcast:
 			for id, client := range room.members {
 				select {
-				case client.send <- message:
+				case client.Send <- message:
 				default:
-					close(client.send)
+					close(client.Send)
 					delete(room.members, id)
 				}
 			}

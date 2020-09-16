@@ -15,32 +15,27 @@ const (
 	maxMessageSize = 1024
 )
 
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-}
-
 type WSConnection struct {
-	id             string
-	hub            *Hub
-	room           string
-	conn           *websocket.Conn
-	send           chan []byte
-	processMessage func(msg []byte, ws *WSConnection)
-	entity         string
+	Id             string
+	Hub            *Hub
+	Room           string
+	Conn           *websocket.Conn
+	Send           chan []byte
+	ProcessMessage func(msg []byte, ws *WSConnection)
+	Entity         string
 }
 
-func (w *WSConnection) getIncomingMessages() {
+func (w *WSConnection) ReadPump() {
 	defer func() {
-		w.hub.unregister <- w
-		w.conn.Close()
+		w.Hub.unregister <- w
+		w.Conn.Close()
 	}()
-	w.conn.SetReadLimit(maxMessageSize)
-	w.conn.SetReadDeadline(time.Now().Add(pongWait))
-	w.conn.SetPongHandler(func(string) error { w.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
+	w.Conn.SetReadLimit(maxMessageSize)
+	w.Conn.SetReadDeadline(time.Now().Add(pongWait))
+	w.Conn.SetPongHandler(func(string) error { w.Conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 
 	for {
-		_, message, err := w.conn.ReadMessage()
+		_, message, err := w.Conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("error: %v", err)
@@ -49,37 +44,37 @@ func (w *WSConnection) getIncomingMessages() {
 		}
 
 		go func() {
-			w.processMessage(message, w)
+			w.ProcessMessage(message, w)
 		}()
 
 	}
 }
 
-func (w *WSConnection) writeMessageToClient() {
+func (w *WSConnection) WritePump() {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
 		ticker.Stop()
-		w.conn.Close()
+		w.Conn.Close()
 	}()
 	for {
 		select {
-		case message, ok := <-w.send:
-			w.conn.SetWriteDeadline(time.Now().Add(writeWait))
+		case message, ok := <-w.Send:
+			w.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
-				// The hub closed the channel.
-				w.conn.WriteMessage(websocket.CloseMessage, []byte{})
+				// The Hub closed the channel.
+				w.Conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
 
-			err := w.conn.WriteMessage(websocket.TextMessage, message)
+			err := w.Conn.WriteMessage(websocket.TextMessage, message)
 
 			if err != nil {
-				log.Println("Failed to send message to client", err)
+				log.Println("Failed to Send message to client", err)
 			}
 
 		case <-ticker.C:
-			w.conn.SetWriteDeadline(time.Now().Add(writeWait))
-			if err := w.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+			w.Conn.SetWriteDeadline(time.Now().Add(writeWait))
+			if err := w.Conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return
 			}
 		}
@@ -87,24 +82,24 @@ func (w *WSConnection) writeMessageToClient() {
 }
 
 func (w *WSConnection) getIdBasedOnType() string {
-	if w.entity == "electron" {
-		return fmt.Sprintf("electron_%s", w.id)
+	if w.Entity == "electron" {
+		return fmt.Sprintf("electron_%s", w.Id)
 	} else {
-		return fmt.Sprintf("customer_%s", w.id)
+		return fmt.Sprintf("customer_%s", w.Id)
 	}
 }
 
 func (w *WSConnection) joinRoom(name string) {
-	w.hub.joinRoomQueue <- RoomRequest{name: name, w: w}
+	w.Hub.joinRoomQueue <- RoomRequest{name: name, w: w}
 }
 
 func (w *WSConnection) leaveRoom(name string) {
-	w.hub.leaveRoomQueue <- RoomRequest{name: name, w: w}
+	w.Hub.leaveRoomQueue <- RoomRequest{name: name, w: w}
 }
 
 func (w *WSConnection) sendMessage(message []byte) {
 	// there's a minor problem here..
-	// when the client disconnects, we close the send channel..
-	// so if we try to send a message after a client disconnects, our app crashes cos our guy here blocks forever.
-	w.send <- message
+	// when the client disconnects, we close the Send channel..
+	// so if we try to Send a message after a client disconnects, our app crashes cos our guy here blocks forever.
+	w.Send <- message
 }
