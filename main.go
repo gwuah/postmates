@@ -8,7 +8,7 @@ import (
 	"github.com/gwuah/api/database"
 	"github.com/gwuah/api/database/models"
 	"github.com/gwuah/api/database/postgres"
-	handler "github.com/gwuah/api/handlers"
+	"github.com/gwuah/api/handler"
 	"github.com/gwuah/api/server"
 	"github.com/gwuah/api/utils/jwt"
 	"github.com/gwuah/api/utils/secure"
