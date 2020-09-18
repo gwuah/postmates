@@ -1,8 +1,10 @@
 package shared
 
+import "github.com/uber/h3-go"
+
 type Coord struct {
-	Longitude float64 `json:"longitude" validate:"required"`
-	Latitude  float64 `json:"latitude" validate:"required"`
+	Lng float64 `json:"lng" validate:"required"`
+	Lat float64 `json:"lat" validate:"required"`
 }
 
 type DeliveryRequest struct {
@@ -12,6 +14,17 @@ type DeliveryRequest struct {
 	ProductId   uint        `json:"productId"`
 	Notes       string      `json:"notes"`
 	CustomerID  uint        `json:"customerId"`
+}
+
+type UserLocationUpdate struct {
+	Id string `json:"id"`
+	Coord
+}
+
+type User struct {
+	Id             string     `json:"id"`
+	LastKnownIndex h3.H3Index `json:"lastKnownIndex"`
+	Coord
 }
 
 type CancelDeliveryRequest struct {

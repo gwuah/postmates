@@ -14,9 +14,10 @@ var upgrader = websocket.Upgrader{
 }
 
 var MESSAGE_TYPES = map[string]string{
-	"DeliveryRequest": "DeliveryRequest",
-	"CancelDelivery":  "CancelDelivery",
-	"GetEstimate":     "GetEstimate",
+	"DeliveryRequest":       "DeliveryRequest",
+	"CancelDelivery":        "CancelDelivery",
+	"GetEstimate":           "GetEstimate",
+	"IndexElectronLocation": "IndexElectronLocation",
 }
 
 func (h *Handler) getTypeOfMessage(message []byte) []byte {
@@ -55,6 +56,8 @@ func (h *Handler) processIncomingMessage(message []byte, ws *ws.WSConnection) {
 		h.handleDeliveryRequest(message, ws)
 	case MESSAGE_TYPES["CancelDelivery"]:
 		h.handleDeliveryCancellation(message, ws)
+	case MESSAGE_TYPES["IndexElectronLocation"]:
+		h.handleElectronLocationUpdate(message, ws)
 	default:
 		log.Printf("No handler available for request %s", h.getTypeOfMessage(message))
 	}

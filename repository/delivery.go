@@ -21,10 +21,10 @@ func (r *Repository) GetDelivery(id uint64) (models.Delivery, *gorm.DB) {
 
 func (r *Repository) CreateDelivery(data shared.DeliveryRequest, order *models.Order) (*models.Delivery, error) {
 	delivery := models.Delivery{
-		OriginLatitude:       data.Origin.Latitude,
-		OriginLongitude:      data.Origin.Longitude,
-		DestinationLatitude:  data.Destination.Latitude,
-		DestinationLongitude: data.Destination.Longitude,
+		OriginLatitude:       data.Origin.Lat,
+		OriginLongitude:      data.Origin.Lng,
+		DestinationLatitude:  data.Destination.Lat,
+		DestinationLongitude: data.Destination.Lng,
 		Notes:                data.Notes,
 		OrderID:              order.ID,
 		ProductID:            data.ProductId,

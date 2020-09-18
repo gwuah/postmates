@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis"
 	"github.com/gwuah/api/lib/ws"
 	"github.com/gwuah/api/middleware"
 	"github.com/gwuah/api/repository"
@@ -19,10 +20,11 @@ type Handler struct {
 	Services             *services.Services
 	maxMessageTypeLength int
 	Hub                  *ws.Hub
+	RedisDB              *redis.Client
 }
 
-func New(DB *gorm.DB, jwt jwt.Service, sec *secure.Service) *Handler {
-	repo := repository.New(DB)
+func New(DB *gorm.DB, jwt jwt.Service, sec *secure.Service, redisDB *redis.Client) *Handler {
+	repo := repository.New(DB, redisDB)
 	services := services.New(repo)
 	hub := ws.NewHub()
 	go hub.Run()
@@ -32,8 +34,9 @@ func New(DB *gorm.DB, jwt jwt.Service, sec *secure.Service) *Handler {
 		Repo:                 repo,
 		JWT:                  jwt,
 		Services:             services,
-		maxMessageTypeLength: 20,
+		maxMessageTypeLength: 30,
 		Hub:                  hub,
+		RedisDB:              redisDB,
 	}
 }
 
