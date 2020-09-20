@@ -1,12 +1,16 @@
 // This is basically our data layer.
 package repository
 
-import "gorm.io/gorm"
+import (
+	"github.com/go-redis/redis"
+	"gorm.io/gorm"
+)
 
 type Repository struct {
-	DB *gorm.DB
+	DB      *gorm.DB
+	RedisDB *redis.Client
 }
 
-func New(db *gorm.DB) *Repository {
-	return &Repository{db}
+func New(db *gorm.DB, redisDB *redis.Client) *Repository {
+	return &Repository{db, redisDB}
 }

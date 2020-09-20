@@ -1,8 +1,25 @@
 package shared
 
+import "github.com/uber/h3-go"
+
+type BaseMessage struct {
+	Type string `json:"type"`
+}
+
 type Coord struct {
-	Longitude float64 `json:"longitude" validate:"required"`
-	Latitude  float64 `json:"latitude" validate:"required"`
+	Lng float64 `json:"lng" validate:"required"`
+	Lat float64 `json:"lat" validate:"required"`
+}
+
+type User struct {
+	Id             string     `json:"id"`
+	LastKnownIndex h3.H3Index `json:"lastKnownIndex"`
+	Coord
+}
+
+type UserLocationUpdate struct {
+	Id string `json:"id"`
+	Coord
 }
 
 type DeliveryRequest struct {
@@ -19,6 +36,8 @@ type CancelDeliveryRequest struct {
 	TripId      uint        `json:"tripId"`
 }
 
-type BaseMessage struct {
-	Type string `json:"type"`
+type GetClosestElectronsRequest struct {
+	BaseMessage BaseMessage `json:"meta"`
+	Id          string      `json:"id"`
+	Origin      Coord       `json:"origin"`
 }
