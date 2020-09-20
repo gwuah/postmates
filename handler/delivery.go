@@ -16,6 +16,47 @@ func (h *Handler) handleDeliveryRequest(message []byte, ws *ws.WSConnection) {
 		return
 	}
 
+	product, err := h.Repo.FindProduct(data.ProductId)
+	if err != nil {
+		log.Printf("Failed to find product with id (%d)", data.ProductId)
+		log.Println(err)
+		return
+	}
+
+	if product.Name == "express" {
+		order, err := h.Repo.CreateOrder()
+		if err != nil {
+			log.Println("Failed to create order", err)
+			return
+		}
+
+		rawDelivery, err := h.Repo.CreateDelivery(data, order)
+
+		if err != nil {
+			log.Println("Failed to create delivery", err)
+			return
+		}
+
+		delivery, err := h.Repo.GetDelivery(rawDelivery.ID)
+
+		if err != nil {
+			log.Println("Failed to retrieve delivery", err)
+			return
+		}
+
+		stringifiedResponse, err := json.Marshal(delivery)
+
+		if err != nil {
+			log.Println("Failed to marshal message", err)
+			return
+		}
+
+		ws.SendMessage([]byte(stringifiedResponse))
+
+	} else {
+
+	}
+
 	ws.SendMessage([]byte("Delivery Placed"))
 
 }
