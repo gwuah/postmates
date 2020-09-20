@@ -18,6 +18,7 @@ var MESSAGE_TYPES = map[string]string{
 	"CancelDelivery":        "CancelDelivery",
 	"GetEstimate":           "GetEstimate",
 	"IndexElectronLocation": "IndexElectronLocation",
+	"GetClosestElectrons":   "GetClosestElectrons",
 }
 
 func (h *Handler) getTypeOfMessage(message []byte) []byte {
@@ -58,6 +59,8 @@ func (h *Handler) processIncomingMessage(message []byte, ws *ws.WSConnection) {
 		h.handleDeliveryCancellation(message, ws)
 	case MESSAGE_TYPES["IndexElectronLocation"]:
 		h.handleElectronLocationUpdate(message, ws)
+	case MESSAGE_TYPES["GetClosestElectrons"]:
+		h.handleGetClosestElectrons(message, ws)
 	default:
 		log.Printf("No handler available for request %s", h.getTypeOfMessage(message))
 	}

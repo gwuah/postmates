@@ -45,7 +45,7 @@ func (r *Repository) InsertElectronIntoRedis(user *shared.User) error {
 }
 
 func (r *Repository) RemoveElectronFromIndex(index h3.H3Index, user *shared.User) error {
-	key := fmt.Sprintf("electron_cell_%d", index)
+	key := fmt.Sprintf("electron_index_%d", index)
 	_, err := r.RedisDB.LRem(key, 0, user.Id).Result()
 	if err != nil {
 		return err
@@ -55,11 +55,21 @@ func (r *Repository) RemoveElectronFromIndex(index h3.H3Index, user *shared.User
 }
 
 func (r *Repository) InsertElectronIntoIndex(index h3.H3Index, user *shared.User) error {
-	key := fmt.Sprintf("electron_cell_%d", index)
+	key := fmt.Sprintf("electron_index_%d", index)
 	_, err := r.RedisDB.LPush(key, user.Id).Result()
 	if err != nil {
 		return err
 	}
 	return nil
+
+}
+
+func (r *Repository) GetElectronsInIndex(index h3.H3Index) ([]string, error) {
+	key := fmt.Sprintf("electron_index_%d", index)
+	electronsIds, err := r.RedisDB.LRange(key, 0, -1).Result()
+	if err != nil {
+		return nil, err
+	}
+	return electronsIds, nil
 
 }
