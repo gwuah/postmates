@@ -8,8 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/gwuah/api/database/models"
-	"github.com/gwuah/api/lib/otp"
 	"github.com/gwuah/api/lib/sms"
+	"github.com/gwuah/api/utils"
 	myValidator "github.com/gwuah/api/utils/validator"
 	"gorm.io/gorm"
 )
@@ -60,8 +60,8 @@ func (h *Handler) ViewCustomer(c *gin.Context) {
 
 func (h *Handler) sendSMS(customer models.Customer) {
 	response, err := h.SMS.SendTextMessage(sms.Message{
-		To:  customer.Phone,
-		Sms: fmt.Sprintf("Your electra code: %d", otp.GenerateOTP()),
+		To:  utils.GeneratePhoneNumber(customer.Phone),
+		Sms: fmt.Sprintf("Your electra code: %s", utils.GenerateOTP()),
 	})
 
 	if err != nil {
