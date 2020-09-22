@@ -68,6 +68,7 @@ func (h *Handler) sendSMS(customer models.Customer) {
 		log.Println(err)
 		return
 	}
+
 	fmt.Println(response)
 }
 
@@ -93,26 +94,13 @@ func (h *Handler) CreateCustomer(c *gin.Context) {
 	}
 
 	if existingCustomer != nil {
-		go func() {
-			response, err := h.SMS.SendTextMessage(sms.Message{
-				To:  existingCustomer.Phone,
-				Sms: fmt.Sprintf("Your electra code: %d", otp.GenerateOTP()),
-			})
-
-			if err != nil {
-				log.Println(err)
-				return
-			}
-			fmt.Println(response)
-		}()
-
+		go h.sendSMS(*existingCustomer)
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Customer Exists Already",
 		})
 
 	} else {
 
-		// we want to put our logic here
 		record, err := h.Repo.CreateCustomerWithPhone(req.Phone)
 
 		if err != nil {
@@ -123,18 +111,7 @@ func (h *Handler) CreateCustomer(c *gin.Context) {
 			return
 		}
 
-		go func() {
-			response, err := h.SMS.SendTextMessage(sms.Message{
-				To:  record.Phone,
-				Sms: fmt.Sprintf("Your electra code: %d", otp.GenerateOTP()),
-			})
-
-			if err != nil {
-				log.Println(err)
-				return
-			}
-			fmt.Println(response)
-		}()
+		go h.sendSMS(*record)
 
 		c.JSON(http.StatusOK, gin.H{
 			"message": "New Customer",
