@@ -21,10 +21,10 @@ type Message struct {
 }
 
 type Response struct {
-	MessageId string `json:"message_id"`
-	Message   string `json:"message"`
-	Balance   int    `json:"balance"`
-	User      string `json:"user"`
+	MessageId string  `json:"message_id"`
+	Message   string  `json:"message"`
+	Balance   float64 `json:"balance"`
+	User      string  `json:"user"`
 }
 
 const API_ENDPOINT = "https://termii.com/api/sms/send"
@@ -34,7 +34,12 @@ func New(apiKey string) *SMS {
 	return &SMS{apiKey}
 }
 
-func (w *SMS) SendTextMessage(msg Message) (*Response, error) {
+func (s *SMS) SendTextMessage(msg Message) (*Response, error) {
+	msg.ApiKey = s.key
+	msg.Type = "plain"
+	msg.Channel = "generic"
+	msg.From = "electra"
+
 	body, err := json.Marshal(msg)
 	if err != nil {
 		return nil, err
