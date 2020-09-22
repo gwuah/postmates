@@ -5,10 +5,12 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"os"
 )
 
 type SMS struct {
-	key string
+	key      string
+	senderID string
 }
 
 type Message struct {
@@ -30,15 +32,14 @@ type Response struct {
 const API_ENDPOINT = "https://termii.com/api/sms/send"
 
 func New(apiKey string) *SMS {
-
-	return &SMS{apiKey}
+	return &SMS{apiKey, os.Getenv("TERMII_SENDER_ID")}
 }
 
 func (s *SMS) SendTextMessage(msg Message) (*Response, error) {
 	msg.ApiKey = s.key
 	msg.Type = "plain"
 	msg.Channel = "generic"
-	msg.From = "electra"
+	msg.From = s.senderID
 
 	body, err := json.Marshal(msg)
 	if err != nil {
