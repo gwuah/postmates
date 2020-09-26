@@ -23,6 +23,12 @@ type WSConnection struct {
 	Send           chan []byte
 	ProcessMessage func(msg []byte, ws *WSConnection)
 	Entity         string
+	IsActive       bool
+}
+
+func (w *WSConnection) Deactivate() {
+	close(w.Send)
+	w.IsActive = false
 }
 
 func (w *WSConnection) ReadPump() {
@@ -101,5 +107,9 @@ func (w *WSConnection) SendMessage(message []byte) {
 	// there's a minor problem here..
 	// when the client disconnects, we close the Send channel..
 	// so if we try to Send a message after a client disconnects, our app crashes cos our guy here blocks forever.
-	w.Send <- message
+	if w.IsActive {
+		w.Send <- message
+	} else {
+		log.Println("Can't send message to closed socket conn", w.Id, w.Entity)
+	}
 }

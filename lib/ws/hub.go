@@ -53,7 +53,7 @@ func (h *Hub) Run() {
 			log.Println("Unregistering ", conn.getIdBasedOnType())
 			if _, ok := h.clients[conn.getIdBasedOnType()]; ok {
 				delete(h.clients, conn.getIdBasedOnType())
-				close(conn.Send)
+				conn.Deactivate()
 			}
 
 		case request := <-h.createRoomQueue:

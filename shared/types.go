@@ -7,8 +7,8 @@ type BaseMessage struct {
 }
 
 type Coord struct {
-	Lng float64 `json:"lng" validate:"required"`
-	Lat float64 `json:"lat" validate:"required"`
+	Longitude float64 `json:"longitude" validate:"required"`
+	Latitude  float64 `json:"latitude" validate:"required"`
 }
 
 type User struct {

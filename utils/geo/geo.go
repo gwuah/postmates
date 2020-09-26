@@ -7,8 +7,8 @@ import (
 
 func CoordToIndex(param shared.Coord) h3.H3Index {
 	return h3.FromGeo(h3.GeoCoord{
-		Latitude:  param.Lat,
-		Longitude: param.Lng,
+		Latitude:  param.Latitude,
+		Longitude: param.Longitude,
 	}, 8)
 }
 

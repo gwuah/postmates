@@ -83,6 +83,7 @@ func (h *Handler) handleConnection(entity string) func(c *gin.Context) {
 			Id:             id,
 			Entity:         entity,
 			ProcessMessage: h.processIncomingMessage,
+			IsActive:       true,
 		}
 
 		h.Hub.Register <- wsConnection

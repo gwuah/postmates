@@ -1,11 +1,26 @@
 const WebSocket = require("ws");
 
-const outsideScope = { lat: 5.698188535023582, lng: -0.239341780857103 };
+const outsideScope = {
+  latitude: 5.698188535023582,
+  longitude: -0.239341780857103,
+};
 
 const defaultCabPositions = [
-  { lng: -0.2475990969444747, lat: 5.684136332305188, color: "blue" },
-  { lng: -0.2397266058667604, lat: 5.683835847589247, color: "blue" },
-  { lng: -0.24460022375167725, lat: 5.677474538991623, color: "blue" },
+  {
+    longitude: -0.2475990969444747,
+    latitude: 5.684136332305188,
+    color: "blue",
+  },
+  {
+    longitude: -0.2397266058667604,
+    latitude: 5.683835847589247,
+    color: "blue",
+  },
+  {
+    longitude: -0.24460022375167725,
+    latitude: 5.677474538991623,
+    color: "blue",
+  },
 ];
 
 function electron(id) {
@@ -26,8 +41,8 @@ function electron(id) {
             type: "IndexElectronLocation",
           },
           id: id,
-          lat: coord.lat,
-          lng: coord.lng,
+          latitude: coord.latitude,
+          longitude: coord.longitude,
         })
       );
     }, 2000);
@@ -52,8 +67,8 @@ function electron(id) {
             type: "IndexElectronLocation",
           },
           id: id,
-          lat: coord.lat,
-          lng: coord.lng,
+          latitude: coord.latitude,
+          longitude: coord.longitude,
         })
       );
     }, 2000);

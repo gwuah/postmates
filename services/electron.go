@@ -72,3 +72,17 @@ func (s *Services) GetClosestElectrons(coord shared.Coord, steps int) []string {
 	return electronsIds
 
 }
+
+func (s *Services) GetAllElectrons(ids []string) ([]*shared.User, error) {
+	electrons := []*shared.User{}
+
+	for _, id := range ids {
+		electron, err := s.repo.GetElectronFromRedis(id)
+		if err != nil {
+			log.Println("Failed To Load User", err)
+		}
+		electrons = append(electrons, electron)
+	}
+
+	return electrons, nil
+}
