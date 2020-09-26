@@ -1,12 +1,17 @@
 package handler
 
 import (
+	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/gwuah/api/database/models"
+	"github.com/gwuah/api/lib/sms"
+	"github.com/gwuah/api/utils"
 	myValidator "github.com/gwuah/api/utils/validator"
+	"gorm.io/gorm"
 )
 
 type CreateCustomerRequest struct {
@@ -53,6 +58,20 @@ func (h *Handler) ViewCustomer(c *gin.Context) {
 	return
 }
 
+func (h *Handler) sendSMS(customer models.Customer) {
+	response, err := h.SMS.SendTextMessage(sms.Message{
+		To:  utils.GeneratePhoneNumber(customer.Phone),
+		Sms: fmt.Sprintf("Your electra code: %s", utils.GenerateOTP()),
+	})
+
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	fmt.Println(response)
+}
+
 func (h *Handler) CreateCustomer(c *gin.Context) {
 	req := new(CreateCustomerRequest)
 	if err := c.ShouldBindJSON(req); err != nil {
@@ -64,25 +83,39 @@ func (h *Handler) CreateCustomer(c *gin.Context) {
 		}
 	}
 
-	customer := models.Customer{
-		Phone: req.Phone,
-	}
+	existingCustomer, err := h.Repo.FindCustomerByPhone(req.Phone)
 
-	result := h.DB.Create(&customer)
-
-	if result.Error != nil {
+	if err != nil && err != gorm.ErrRecordNotFound {
+		log.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Failed To Retrieve Customer",
+			"message": "Request Failed",
 		})
 		return
 	}
 
-	if result.RowsAffected > 0 {
+	if existingCustomer != nil {
+		go h.sendSMS(*existingCustomer)
 		c.JSON(http.StatusOK, gin.H{
-			"message":  "Success",
-			"customer": customer,
+			"message": "Customer Exists Already",
 		})
-		return
-	}
 
+	} else {
+
+		record, err := h.Repo.CreateCustomerWithPhone(req.Phone)
+
+		if err != nil {
+			log.Println(err)
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Customer Creation Failed",
+			})
+			return
+		}
+
+		go h.sendSMS(*record)
+
+		c.JSON(http.StatusOK, gin.H{
+			"message": "New Customer",
+		})
+
+	}
 }

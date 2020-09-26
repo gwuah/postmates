@@ -1,10 +1,12 @@
 package handler
 
 import (
+	"os"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
+	"github.com/gwuah/api/lib/sms"
 	"github.com/gwuah/api/lib/ws"
-	"github.com/gwuah/api/middleware"
 	"github.com/gwuah/api/repository"
 	"github.com/gwuah/api/services"
 	"github.com/gwuah/api/utils/jwt"
@@ -21,12 +23,14 @@ type Handler struct {
 	maxMessageTypeLength int
 	Hub                  *ws.Hub
 	RedisDB              *redis.Client
+	SMS                  *sms.SMS
 }
 
 func New(DB *gorm.DB, jwt jwt.Service, sec *secure.Service, redisDB *redis.Client) *Handler {
 	repo := repository.New(DB, redisDB)
 	services := services.New(repo)
 	hub := ws.NewHub()
+	SMS := sms.New(os.Getenv("TERMII_API_KEY"))
 	go hub.Run()
 
 	return &Handler{
@@ -37,6 +41,7 @@ func New(DB *gorm.DB, jwt jwt.Service, sec *secure.Service, redisDB *redis.Clien
 		maxMessageTypeLength: 30,
 		Hub:                  hub,
 		RedisDB:              redisDB,
+		SMS:                  SMS,
 	}
 }
 
@@ -50,7 +55,8 @@ func (h *Handler) Register(v1 *gin.RouterGroup) {
 	v1.POST("/otp/verify", h.VerifyOTP)
 	v1.GET("/refresh/:token", h.Refresh)
 
-	customers := v1.Group("/customers", middleware.JWT(h.JWT))
+	//  middleware.JWT(h.JWT)
+	customers := v1.Group("/customers")
 	customers.GET("/", h.ListCustomers)
 	customers.GET("/:id", h.ViewCustomer)
 	customers.POST("/", h.CreateCustomer)
