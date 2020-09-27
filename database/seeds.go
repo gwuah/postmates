@@ -99,7 +99,7 @@ func SeedCustomers(DB *gorm.DB, path string) {
 
 		if err := DB.Where("first_name = ? AND last_name = ?", firstName, lastName).First(&customer).Error; err != nil {
 			if err == gorm.ErrRecordNotFound {
-				DB.Create(&models.Customer{FirstName: firstName, LastName: lastName})
+				DB.Create(&models.Customer{FirstName: firstName, LastName: lastName, Active: true})
 			} else {
 				log.Printf("Customer [ %s ] lookup failed", name)
 				log.Println(err)

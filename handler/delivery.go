@@ -51,7 +51,7 @@ func (h *Handler) handleAcceptDeliveryRequest(message []byte, ws *ws.WSConnectio
 	}
 
 	go func() {
-		customer.SendMessage([]byte("Trip Accepted"))
+		customer.SendMessage([]byte(fmt.Sprintf("Trip Accepted by electron %s", electron.Id)))
 	}()
 
 }
@@ -165,10 +165,9 @@ func (h *Handler) handleDeliveryRequest(message []byte, ws *ws.WSConnection) {
 		}
 
 		ticker := time.NewTicker(5 * time.Second)
-		moveToNextElectron := make(chan bool)
 
 	electronLoop:
-		for key, electron := range e {
+		for _, electron := range e {
 			conn := h.Hub.GetClient(fmt.Sprintf("electron_%s", electron.Electron.Id))
 			if conn == nil {
 				log.Printf("Electron %s has disconnected from server", electron.Electron.Id)
@@ -177,36 +176,18 @@ func (h *Handler) handleDeliveryRequest(message []byte, ws *ws.WSConnection) {
 
 			conn.SendMessage(convertedValue)
 
-			go func(key int) {
-				fmt.Println("Goroutine", key)
-
-				for {
-					select {
-					case <-ticker.C:
-						moveToNextElectron <- true
-						fmt.Println("Exiting Goroutine", key)
-						return
-					case _, ok := <-moveToNextElectron:
-						if !ok {
-							fmt.Println("Exiting GoroutiEEEE", key)
-							return
-						}
-					}
-				}
-			}(key)
-
 			select {
-			case <-moveToNextElectron:
-			case data := <-conn.AcceptDeliveryPipeline:
-				log.Println(string(data))
-				log.Printf("Electron %s accepted the request", conn.Id)
+			case <-ticker.C:
+				// move to next electron in queue
+			case <-conn.AcceptDeliveryPipeline:
+				// delivery has been accepted, exit
+				ticker.Stop()
 				break electronLoop
 			}
 
 		}
 
-		close(moveToNextElectron)
-		ticker.Stop()
+		fmt.Println("HANLDED == 100%")
 
 	} else {
 

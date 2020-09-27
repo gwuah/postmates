@@ -57,7 +57,7 @@ function electron(id) {
     // console.log(`ID(${id}) >>> `, JSON.stringify(parsed, null, 4));
     console.log(`ID(${id}) >>> `, parsed.meta.type);
 
-    if (parsed.meta.type == "NewDeliveryOrder" && id == "2") {
+    if (parsed.meta.type == "NewDeliveryOrder" && id == "3") {
       setTimeout(() => {
         ws.send(
           JSON.stringify({
