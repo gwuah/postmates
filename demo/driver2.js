@@ -14,8 +14,8 @@ function connect(id) {
             type: "IndexElectronLocation",
           },
           id: id,
-          lat: 5.680814496321185,
-          lng: -0.23598240546815585,
+          latitude: 5.680814496321185,
+          longitude: -0.23598240546815585,
         })
       );
     }, 2000);

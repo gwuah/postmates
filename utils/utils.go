@@ -4,6 +4,8 @@ import (
 	"crypto/rand"
 	"fmt"
 	"io"
+
+	"github.com/gwuah/api/shared"
 )
 
 var table = [...]byte{'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'}
@@ -23,4 +25,8 @@ func GenerateOTP() string {
 		b[i] = table[int(b[i])%len(table)]
 	}
 	return string(b)
+}
+
+func StringifyLngLat(props shared.Coord) string {
+	return fmt.Sprintf("%f,%f", props.Longitude, props.Latitude)
 }

@@ -1,8 +1,8 @@
 const WebSocket = require("ws");
 
 const origin = {
-  lat: 5.6796946725653745,
-  lng: -0.2447180449962616,
+  latitude: 5.6796946725653745,
+  longitude: -0.2447180449962616,
 };
 
 function connect(id) {
@@ -12,19 +12,16 @@ function connect(id) {
   ws.on("open", (e) => {
     console.log("connection successful");
 
-    setInterval(() => {
+    setTimeout(() => {
       ws.send(
         JSON.stringify({
           meta: {
             type: "DeliveryRequest",
           },
-          productId: 3,
+          productId: 1,
           customerID: 1,
           notes: "Hello",
-          origin: {
-            longitude: 2.4345545,
-            latitude: 4.054594095,
-          },
+          origin,
           destination: {
             longitude: 2.4345545,
             latitude: 4.054594095,
@@ -35,6 +32,8 @@ function connect(id) {
   });
 
   ws.on("message", function (data) {
+    // parsed = JSON.parse(data);
+    // console.log(JSON.stringify(parsed, null, 4));
     console.log(data);
   });
 

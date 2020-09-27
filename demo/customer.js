@@ -1,8 +1,8 @@
 const WebSocket = require("ws");
 
 const origin = {
-  lat: 5.6796946725653745,
-  lng: -0.2447180449962616,
+  latitude: 5.6796946725653745,
+  longitude: -0.2447180449962616,
 };
 
 function connect(id) {

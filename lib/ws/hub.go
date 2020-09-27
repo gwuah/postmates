@@ -1,7 +1,6 @@
 package ws
 
 import (
-	"log"
 	"sync"
 )
 
@@ -34,6 +33,12 @@ func NewHub() *Hub {
 	}
 }
 
+func (h *Hub) GetClient(id string) *WSConnection {
+	h.gil.Lock()
+	defer h.gil.Unlock()
+	return h.clients[id]
+}
+
 func (h *Hub) createRoom(name string) {
 	if _, roomExists := h.rooms[name]; roomExists {
 		return
@@ -46,15 +51,17 @@ func (h *Hub) Run() {
 	for {
 		select {
 		case conn := <-h.Register:
-			log.Println("Registering ", conn.getIdBasedOnType())
+			h.gil.Lock()
 			h.clients[conn.getIdBasedOnType()] = conn
 
+			h.gil.Unlock()
 		case conn := <-h.unregister:
-			log.Println("Unregistering ", conn.getIdBasedOnType())
+			h.gil.Lock()
 			if _, ok := h.clients[conn.getIdBasedOnType()]; ok {
 				delete(h.clients, conn.getIdBasedOnType())
-				close(conn.Send)
+				conn.Deactivate()
 			}
+			h.gil.Unlock()
 
 		case request := <-h.createRoomQueue:
 			h.createRoom(request.name)

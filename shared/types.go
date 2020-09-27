@@ -1,14 +1,17 @@
 package shared
 
-import "github.com/uber/h3-go"
+import (
+	"github.com/gwuah/api/database/models"
+	"github.com/uber/h3-go"
+)
 
-type BaseMessage struct {
+type Meta struct {
 	Type string `json:"type"`
 }
 
 type Coord struct {
-	Lng float64 `json:"lng" validate:"required"`
-	Lat float64 `json:"lat" validate:"required"`
+	Longitude float64 `json:"longitude" validate:"required"`
+	Latitude  float64 `json:"latitude" validate:"required"`
 }
 
 type User struct {
@@ -23,21 +26,31 @@ type UserLocationUpdate struct {
 }
 
 type DeliveryRequest struct {
-	BaseMessage BaseMessage `json:"meta"`
-	Origin      Coord       `json:"origin"`
-	Destination Coord       `json:"destination"`
-	ProductId   uint        `json:"productId"`
-	Notes       string      `json:"notes"`
-	CustomerID  uint        `json:"customerId"`
+	Meta        Meta   `json:"meta"`
+	Origin      Coord  `json:"origin"`
+	Destination Coord  `json:"destination"`
+	ProductId   uint   `json:"productId"`
+	Notes       string `json:"notes"`
+	CustomerID  uint   `json:"customerId"`
 }
 
 type CancelDeliveryRequest struct {
-	BaseMessage BaseMessage `json:"meta"`
-	TripId      uint        `json:"tripId"`
+	Meta   Meta `json:"meta"`
+	TripId uint `json:"tripId"`
 }
 
 type GetClosestElectronsRequest struct {
-	BaseMessage BaseMessage `json:"meta"`
-	Id          string      `json:"id"`
-	Origin      Coord       `json:"origin"`
+	Meta   Meta   `json:"meta"`
+	Id     string `json:"id"`
+	Origin Coord  `json:"origin"`
+}
+
+type NewDeliveryOrder struct {
+	Meta     Meta             `json:"meta"`
+	Delivery *models.Delivery `json:"delivery"`
+}
+
+type AcceptDeliveryRequest struct {
+	Meta       Meta `json:"meta"`
+	DeliveryId uint `json:"deliveryId"`
 }
