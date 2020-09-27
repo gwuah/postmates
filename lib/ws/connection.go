@@ -16,14 +16,15 @@ const (
 )
 
 type WSConnection struct {
-	Id             string
-	Hub            *Hub
-	Room           string
-	Conn           *websocket.Conn
-	Send           chan []byte
-	ProcessMessage func(msg []byte, ws *WSConnection)
-	Entity         string
-	IsActive       bool
+	Id                     string
+	Hub                    *Hub
+	Room                   string
+	Conn                   *websocket.Conn
+	Send                   chan []byte
+	ProcessMessage         func(msg []byte, ws *WSConnection)
+	Entity                 string
+	IsActive               bool
+	AcceptDeliveryPipeline chan []byte
 }
 
 func (w *WSConnection) Deactivate() {
@@ -33,6 +34,7 @@ func (w *WSConnection) Deactivate() {
 
 func (w *WSConnection) ReadPump() {
 	defer func() {
+		log.Println("Unregistering", w.Id)
 		w.Hub.unregister <- w
 		w.Conn.Close()
 	}()
@@ -104,11 +106,16 @@ func (w *WSConnection) LeaveRoom(name string) {
 }
 
 func (w *WSConnection) SendMessage(message []byte) {
-	// there's a minor problem here..
-	// when the client disconnects, we close the Send channel..
-	// so if we try to Send a message after a client disconnects, our app crashes cos our guy here blocks forever.
 	if w.IsActive {
 		w.Send <- message
+	} else {
+		log.Println("Can't send message to closed socket conn", w.Id, w.Entity)
+	}
+}
+
+func (w *WSConnection) AcceptDeliveryRequest(message []byte) {
+	if w.IsActive {
+		w.AcceptDeliveryPipeline <- message
 	} else {
 		log.Println("Can't send message to closed socket conn", w.Id, w.Entity)
 	}

@@ -19,6 +19,7 @@ var MESSAGE_TYPES = map[string]string{
 	"GetEstimate":           "GetEstimate",
 	"IndexElectronLocation": "IndexElectronLocation",
 	"GetClosestElectrons":   "GetClosestElectrons",
+	"AcceptDeliveryRequest": "AcceptDeliveryRequest",
 }
 
 func (h *Handler) getTypeOfMessage(message []byte) []byte {
@@ -61,6 +62,8 @@ func (h *Handler) processIncomingMessage(message []byte, ws *ws.WSConnection) {
 		h.handleElectronLocationUpdate(message, ws)
 	case MESSAGE_TYPES["GetClosestElectrons"]:
 		h.handleGetClosestElectrons(message, ws)
+	case MESSAGE_TYPES["AcceptDeliveryRequest"]:
+		h.handleAcceptDeliveryRequest(message, ws)
 	default:
 		log.Printf("No handler available for request %s", h.getTypeOfMessage(message))
 	}
@@ -77,13 +80,14 @@ func (h *Handler) handleConnection(entity string) func(c *gin.Context) {
 		}
 
 		wsConnection := &ws.WSConnection{
-			Hub:            h.Hub,
-			Send:           make(chan []byte),
-			Conn:           conn,
-			Id:             id,
-			Entity:         entity,
-			ProcessMessage: h.processIncomingMessage,
-			IsActive:       true,
+			Hub:                    h.Hub,
+			Send:                   make(chan []byte),
+			Conn:                   conn,
+			Id:                     id,
+			Entity:                 entity,
+			ProcessMessage:         h.processIncomingMessage,
+			IsActive:               true,
+			AcceptDeliveryPipeline: make(chan []byte),
 		}
 
 		h.Hub.Register <- wsConnection

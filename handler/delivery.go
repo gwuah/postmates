@@ -17,6 +17,45 @@ type ElectronWithEta struct {
 	Duration float64
 }
 
+func (h *Handler) handleAcceptDeliveryRequest(message []byte, ws *ws.WSConnection) {
+
+	var data shared.AcceptDeliveryRequest
+	err := json.Unmarshal(message, &data)
+
+	if err != nil {
+		log.Println("Failed to parse message", err)
+		return
+	}
+
+	delivery, err := h.Repo.FindDelivery(data.DeliveryId)
+
+	if err != nil {
+		log.Println("Failed to retrieve product with id", data.DeliveryId)
+		return
+	}
+
+	electron := h.Hub.GetClient(fmt.Sprintf("electron_%s", ws.Id))
+	if electron == nil {
+		log.Println("Electron has disconnected from server", ws.Id)
+		return
+	}
+
+	go func() {
+		electron.AcceptDeliveryRequest([]byte("Trip Accepted"))
+	}()
+
+	customer := h.Hub.GetClient(fmt.Sprintf("customer_%d", delivery.CustomerID))
+	if customer == nil {
+		log.Println("Customer has disconnected from server")
+		return
+	}
+
+	go func() {
+		customer.SendMessage([]byte("Trip Accepted"))
+	}()
+
+}
+
 func (h *Handler) handleDeliveryRequest(message []byte, ws *ws.WSConnection) {
 	var data shared.DeliveryRequest
 	err := json.Unmarshal(message, &data)
@@ -125,22 +164,49 @@ func (h *Handler) handleDeliveryRequest(message []byte, ws *ws.WSConnection) {
 			return
 		}
 
-		for _, electron := range e {
-			fmt.Printf("%s is %dms away from request\n", electron.Electron.Id, int(electron.Duration))
-			ws.SendMessage([]byte(fmt.Sprintf("Sending your request to %s, who is %dms away \n", electron.Electron.Id, int(electron.Duration))))
+		ticker := time.NewTicker(5 * time.Second)
+		moveToNextElectron := make(chan bool)
 
+	electronLoop:
+		for key, electron := range e {
 			conn := h.Hub.GetClient(fmt.Sprintf("electron_%s", electron.Electron.Id))
-			if conn != nil {
-				conn.SendMessage(convertedValue)
-				fmt.Println("message sent")
-			} else {
-				fmt.Println("Electron has disconnected from server")
-
+			if conn == nil {
+				log.Printf("Electron %s has disconnected from server", electron.Electron.Id)
+				continue
 			}
 
-			time.Sleep(2 * time.Second)
+			conn.SendMessage(convertedValue)
+
+			go func(key int) {
+				fmt.Println("Goroutine", key)
+
+				for {
+					select {
+					case <-ticker.C:
+						moveToNextElectron <- true
+						fmt.Println("Exiting Goroutine", key)
+						return
+					case _, ok := <-moveToNextElectron:
+						if !ok {
+							fmt.Println("Exiting GoroutiEEEE", key)
+							return
+						}
+					}
+				}
+			}(key)
+
+			select {
+			case <-moveToNextElectron:
+			case data := <-conn.AcceptDeliveryPipeline:
+				log.Println(string(data))
+				log.Printf("Electron %s accepted the request", conn.Id)
+				break electronLoop
+			}
 
 		}
+
+		close(moveToNextElectron)
+		ticker.Stop()
 
 	} else {
 

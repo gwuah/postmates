@@ -49,3 +49,8 @@ type NewDeliveryOrder struct {
 	Meta     Meta             `json:"meta"`
 	Delivery *models.Delivery `json:"delivery"`
 }
+
+type AcceptDeliveryRequest struct {
+	Meta       Meta `json:"meta"`
+	DeliveryId uint `json:"deliveryId"`
+}

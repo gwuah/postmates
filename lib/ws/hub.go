@@ -1,7 +1,6 @@
 package ws
 
 import (
-	"log"
 	"sync"
 )
 
@@ -53,18 +52,16 @@ func (h *Hub) Run() {
 		select {
 		case conn := <-h.Register:
 			h.gil.Lock()
-			defer h.gil.Unlock()
-			log.Println("Registering ", conn.getIdBasedOnType())
 			h.clients[conn.getIdBasedOnType()] = conn
 
+			h.gil.Unlock()
 		case conn := <-h.unregister:
 			h.gil.Lock()
-			defer h.gil.Unlock()
-			log.Println("Unregistering ", conn.getIdBasedOnType())
 			if _, ok := h.clients[conn.getIdBasedOnType()]; ok {
 				delete(h.clients, conn.getIdBasedOnType())
 				conn.Deactivate()
 			}
+			h.gil.Unlock()
 
 		case request := <-h.createRoomQueue:
 			h.createRoom(request.name)

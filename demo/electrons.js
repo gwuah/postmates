@@ -23,42 +23,56 @@ const defaultCabPositions = [
   },
 ];
 
-function electron(id) {
-  let ws = new WebSocket(`ws://localhost:8080/v1/electron/realtime/${id}`);
-  ws.on("message", function (data) {
-    console.log(`ID(${id}) >>> `, data);
-  });
+// function electron(id) {
+//   let ws = new WebSocket(`ws://localhost:8080/v1/electron/realtime/${id}`);
+//   ws.on("message", function (data) {
+//     console.log(`ID(${id}) >>> `, data);
+//   });
 
-  ws.on("error", function (data) {
-    console.log("Error connecting");
-  });
+//   ws.on("error", function (data) {
+//     console.log("Error connecting");
+//   });
 
-  return (coord) => {
-    setInterval(() => {
-      ws.send(
-        JSON.stringify({
-          meta: {
-            type: "IndexElectronLocation",
-          },
-          id: id,
-          latitude: coord.latitude,
-          longitude: coord.longitude,
-        })
-      );
-    }, 2000);
-  };
-}
+//   return (coord) => {
+//     setInterval(() => {
+//       ws.send(
+//         JSON.stringify({
+//           meta: {
+//             type: "IndexElectronLocation",
+//           },
+//           id: id,
+//           latitude: coord.latitude,
+//           longitude: coord.longitude,
+//         })
+//       );
+//     }, 2000);
+//   };
+// }
 
 function electron(id) {
   let ws = new WebSocket(`ws://localhost:8080/v1/electron/realtime/${id}`);
   ws.on("message", function (data) {
     parsed = JSON.parse(data);
     // console.log(JSON.stringify(parsed, null, 4));
-    console.log(`ID(${id}) >>> `, JSON.stringify(parsed, null, 4));
+    // console.log(`ID(${id}) >>> `, JSON.stringify(parsed, null, 4));
+    console.log(`ID(${id}) >>> `, parsed.meta.type);
+
+    if (parsed.meta.type == "NewDeliveryOrder" && id == "2") {
+      setTimeout(() => {
+        ws.send(
+          JSON.stringify({
+            meta: {
+              type: "AcceptDeliveryRequest",
+            },
+            deliveryId: parsed.delivery.id,
+          })
+        );
+      }, 1000);
+    }
   });
 
   ws.on("error", function (data) {
-    console.log("Error connecting");
+    console.log("Error connecting", data);
   });
 
   return (coord) => {
@@ -78,9 +92,15 @@ function electron(id) {
 }
 
 function main() {
-  electron("1")(defaultCabPositions[0]);
-  electron("2")(defaultCabPositions[1]);
-  electron("3")(defaultCabPositions[2]);
+  setTimeout(() => {
+    electron("1")(defaultCabPositions[0]);
+  }, 1000);
+  setTimeout(() => {
+    electron("2")(defaultCabPositions[1]);
+  }, 2000);
+  setTimeout(() => {
+    electron("3")(defaultCabPositions[2]);
+  }, 3000);
 }
 
 main();

@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"errors"
+
 	"github.com/gwuah/api/database/models"
 	"github.com/gwuah/api/shared"
 )
@@ -36,6 +38,21 @@ func (r *Repository) CreateDelivery(data shared.DeliveryRequest, order *models.O
 
 	if err := r.DB.Create(&delivery).Error; err != nil {
 		return nil, err
+	}
+
+	return &delivery, nil
+}
+
+func (r *Repository) FindDelivery(id uint) (*models.Delivery, error) {
+
+	delivery := models.Delivery{}
+
+	if err := r.DB.First(&delivery, id).Error; err != nil {
+		return nil, err
+	}
+
+	if delivery.ID == 0 {
+		return nil, errors.New("Product Doesn't Exist")
 	}
 
 	return &delivery, nil

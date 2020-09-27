@@ -51,7 +51,7 @@ func (e *Eta) test_getDurationFromOrigin(origin base.Location, destinations []ba
 
 	return &directionsmatrix.DirectionMatrixResponse{
 		Code:      "Ok",
-		Durations: [][]float64{{0, 10, 20, 30}},
+		Durations: [][]float64{{0, 10, 20, 21, 44}},
 	}
 
 }
