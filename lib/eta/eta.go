@@ -9,13 +9,28 @@ import (
 	directionsmatrix "github.com/ryankurte/go-mapbox/lib/directions_matrix"
 )
 
-func GetETAFromOrigin(origin base.Location, destinations []base.Location) *directionsmatrix.DirectionMatrixResponse {
-	var token = os.Getenv("MAPBOX_TOKEN")
-	mapBox, err := mapbox.NewMapbox(token)
-	if err != nil {
-		log.Println("Failed to initialize mapbox", err)
-		return nil
+type Eta struct {
+	token  string
+	mapBox *mapbox.Mapbox
+}
+
+func New(token string) *Eta {
+	if token == "" {
+		log.Fatal("mapbox token required")
 	}
+	mapBox, err := mapbox.NewMapbox(token)
+
+	if err != nil {
+		log.Fatal("Failed to initialize mapbox", err)
+	}
+
+	return &Eta{
+		token:  token,
+		mapBox: mapBox,
+	}
+}
+
+func (e *Eta) _getDurationFromOrigin(origin base.Location, destinations []base.Location) *directionsmatrix.DirectionMatrixResponse {
 
 	var opts directionsmatrix.RequestOpts
 	opts.SetSources([]string{"0"})
@@ -23,11 +38,29 @@ func GetETAFromOrigin(origin base.Location, destinations []base.Location) *direc
 
 	destinations = append([]base.Location{origin}, destinations...)
 
-	response, err := mapBox.DirectionsMatrix.GetDirectionsMatrix(destinations, directionsmatrix.RoutingDriving, &opts)
+	response, err := e.mapBox.DirectionsMatrix.GetDirectionsMatrix(destinations, directionsmatrix.RoutingDriving, &opts)
 	if err != nil {
 		log.Println("Failed to get ETA", err)
 	}
 
 	return response
+
+}
+
+func (e *Eta) test_getDurationFromOrigin(origin base.Location, destinations []base.Location) *directionsmatrix.DirectionMatrixResponse {
+
+	return &directionsmatrix.DirectionMatrixResponse{
+		Code:      "Ok",
+		Durations: [][]float64{{0, 10, 20, 30}},
+	}
+
+}
+
+func (e *Eta) GetDurationFromOrigin(origin base.Location, destinations []base.Location) *directionsmatrix.DirectionMatrixResponse {
+	if os.Getenv("MODE") == "testing" {
+		return e.test_getDurationFromOrigin(origin, destinations)
+	}
+
+	return e._getDurationFromOrigin(origin, destinations)
 
 }

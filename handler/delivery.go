@@ -4,12 +4,18 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"sort"
+	"time"
 
-	"github.com/gwuah/api/lib/eta"
 	"github.com/gwuah/api/lib/ws"
 	"github.com/gwuah/api/shared"
 	"github.com/ryankurte/go-mapbox/lib/base"
 )
+
+type ElectronWithEta struct {
+	Electron *shared.User
+	Duration float64
+}
 
 func (h *Handler) handleDeliveryRequest(message []byte, ws *ws.WSConnection) {
 	var data shared.DeliveryRequest
@@ -48,13 +54,6 @@ func (h *Handler) handleDeliveryRequest(message []byte, ws *ws.WSConnection) {
 			return
 		}
 
-		stringifiedResponse, err := json.Marshal(delivery)
-
-		if err != nil {
-			log.Println("Failed to marshal message", err)
-			return
-		}
-
 		ids := h.Services.GetClosestElectrons(shared.Coord{
 			Latitude:  delivery.OriginLatitude,
 			Longitude: delivery.OriginLongitude,
@@ -87,7 +86,7 @@ func (h *Handler) handleDeliveryRequest(message []byte, ws *ws.WSConnection) {
 			return
 		}
 
-		response := eta.GetETAFromOrigin(base.Location{
+		response := h.Eta.GetDurationFromOrigin(base.Location{
 			Latitude:  data.Origin.Latitude,
 			Longitude: data.Origin.Longitude,
 		}, coords)
@@ -98,22 +97,54 @@ func (h *Handler) handleDeliveryRequest(message []byte, ws *ws.WSConnection) {
 		}
 
 		durations := response.Durations
-		fmt.Println(durations)
-
-		// mapIdToElectron
+		var e []ElectronWithEta
 
 		for key, durationFromOrigin := range durations[0][1:] {
 			electron := electrons[key]
-			fmt.Printf("%s is %dms away from request\n", electron.Id, int(durationFromOrigin))
+			e = append(e, ElectronWithEta{
+				Electron: electron,
+				Duration: durationFromOrigin,
+			})
 		}
-		ws.SendMessage(stringifiedResponse)
+
+		sort.Slice(e, func(i, j int) bool {
+			return e[i].Duration < e[j].Duration
+		})
+
+		data := shared.NewDeliveryOrder{
+			Meta: shared.Meta{
+				Type: "NewDeliveryOrder",
+			},
+			Delivery: delivery,
+		}
+
+		convertedValue, err := json.Marshal(data)
+
+		if err != nil {
+			log.Println("Failed to marshal message", err)
+			return
+		}
+
+		for _, electron := range e {
+			fmt.Printf("%s is %dms away from request\n", electron.Electron.Id, int(electron.Duration))
+			ws.SendMessage([]byte(fmt.Sprintf("Sending your request to %s, who is %dms away \n", electron.Electron.Id, int(electron.Duration))))
+
+			conn := h.Hub.GetClient(fmt.Sprintf("electron_%s", electron.Electron.Id))
+			if conn != nil {
+				conn.SendMessage(convertedValue)
+				fmt.Println("message sent")
+			} else {
+				fmt.Println("Electron has disconnected from server")
+
+			}
+
+			time.Sleep(2 * time.Second)
+
+		}
 
 	} else {
 
 	}
-
-	ws.SendMessage([]byte("Delivery Placed"))
-
 }
 
 func (h *Handler) handleDeliveryCancellation(message []byte, ws *ws.WSConnection) {

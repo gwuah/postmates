@@ -52,7 +52,9 @@ function electron(id) {
 function electron(id) {
   let ws = new WebSocket(`ws://localhost:8080/v1/electron/realtime/${id}`);
   ws.on("message", function (data) {
-    console.log(`ID(${id}) >>> `, data);
+    parsed = JSON.parse(data);
+    // console.log(JSON.stringify(parsed, null, 4));
+    console.log(`ID(${id}) >>> `, JSON.stringify(parsed, null, 4));
   });
 
   ws.on("error", function (data) {

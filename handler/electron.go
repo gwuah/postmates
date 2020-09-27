@@ -26,14 +26,14 @@ func (h *Handler) handleElectronLocationUpdate(message []byte, ws *ws.WSConnecti
 		return
 	}
 
-	stringifiedResponse, err := json.Marshal(electron)
+	_, err = json.Marshal(electron)
 
 	if err != nil {
 		log.Println("Failed to marshal message", err)
 		return
 	}
 
-	ws.SendMessage([]byte(stringifiedResponse))
+	// ws.SendMessage([]byte(stringifiedResponse))
 }
 
 func (h *Handler) handleGetClosestElectrons(message []byte, ws *ws.WSConnection) {

@@ -34,6 +34,12 @@ func NewHub() *Hub {
 	}
 }
 
+func (h *Hub) GetClient(id string) *WSConnection {
+	h.gil.Lock()
+	defer h.gil.Unlock()
+	return h.clients[id]
+}
+
 func (h *Hub) createRoom(name string) {
 	if _, roomExists := h.rooms[name]; roomExists {
 		return
@@ -46,10 +52,14 @@ func (h *Hub) Run() {
 	for {
 		select {
 		case conn := <-h.Register:
+			h.gil.Lock()
+			defer h.gil.Unlock()
 			log.Println("Registering ", conn.getIdBasedOnType())
 			h.clients[conn.getIdBasedOnType()] = conn
 
 		case conn := <-h.unregister:
+			h.gil.Lock()
+			defer h.gil.Unlock()
 			log.Println("Unregistering ", conn.getIdBasedOnType())
 			if _, ok := h.clients[conn.getIdBasedOnType()]; ok {
 				delete(h.clients, conn.getIdBasedOnType())

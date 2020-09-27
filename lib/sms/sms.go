@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 )
@@ -32,6 +33,9 @@ type Response struct {
 const API_ENDPOINT = "https://termii.com/api/sms/send"
 
 func New(apiKey string) *SMS {
+	if apiKey == "" {
+		log.Fatal("mapbox token required")
+	}
 	return &SMS{apiKey, os.Getenv("TERMII_SENDER_ID")}
 }
 

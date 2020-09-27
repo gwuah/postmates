@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
+	"github.com/gwuah/api/lib/eta"
 	"github.com/gwuah/api/lib/sms"
 	"github.com/gwuah/api/lib/ws"
 	"github.com/gwuah/api/repository"
@@ -24,6 +25,7 @@ type Handler struct {
 	Hub                  *ws.Hub
 	RedisDB              *redis.Client
 	SMS                  *sms.SMS
+	Eta                  *eta.Eta
 }
 
 func New(DB *gorm.DB, jwt jwt.Service, sec *secure.Service, redisDB *redis.Client) *Handler {
@@ -31,6 +33,8 @@ func New(DB *gorm.DB, jwt jwt.Service, sec *secure.Service, redisDB *redis.Clien
 	services := services.New(repo)
 	hub := ws.NewHub()
 	SMS := sms.New(os.Getenv("TERMII_API_KEY"))
+	eta := eta.New(os.Getenv("MAPBOX_TOKEN"))
+
 	go hub.Run()
 
 	return &Handler{
@@ -42,6 +46,7 @@ func New(DB *gorm.DB, jwt jwt.Service, sec *secure.Service, redisDB *redis.Clien
 		Hub:                  hub,
 		RedisDB:              redisDB,
 		SMS:                  SMS,
+		Eta:                  eta,
 	}
 }
 

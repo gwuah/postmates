@@ -32,6 +32,8 @@ function connect(id) {
   });
 
   ws.on("message", function (data) {
+    // parsed = JSON.parse(data);
+    // console.log(JSON.stringify(parsed, null, 4));
     console.log(data);
   });
 

@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/fatih/color"
 	"github.com/gwuah/api/database"
 	"github.com/gwuah/api/database/models"
 	"github.com/gwuah/api/database/postgres"
@@ -22,6 +23,9 @@ func main() {
 
 	if err != nil {
 		log.Fatal("Error loading .env file")
+	}
+	if os.Getenv("MODE") == "testing" {
+		color.Red("API currently in testing mode. some external calls will return static values")
 	}
 
 	db, err := postgres.New(&postgres.Config{
@@ -68,6 +72,10 @@ func main() {
 		Password: os.Getenv("REDIS_PASSWORD"),
 		DB:       REDIS_DB,
 	})
+
+	if err != nil {
+		log.Fatal("Failed to initialize mapbox", err)
+	}
 
 	s := server.New()
 	h := handler.New(db, jwt, sec, redisDB)
