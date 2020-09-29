@@ -57,14 +57,16 @@ function electron(id) {
     // console.log(`ID(${id}) >>> `, JSON.stringify(parsed, null, 4));
     console.log(`ID(${id}) >>> `, parsed.meta.type);
 
-    if (parsed.meta.type == "NewDeliveryOrder" && id == "3") {
+    if (parsed.meta.type == "NewOrder" && id == "2") {
+      console.log(`ID(${id}) >>> `, JSON.stringify(parsed, null, 4));
+
       setTimeout(() => {
         ws.send(
           JSON.stringify({
             meta: {
-              type: "AcceptDeliveryRequest",
+              type: "AcceptOrder",
             },
-            deliveryId: parsed.delivery.id,
+            orderId: parsed.order.id,
           })
         );
       }, 1000);

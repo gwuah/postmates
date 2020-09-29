@@ -52,13 +52,13 @@ func (h *Hub) Run() {
 		select {
 		case conn := <-h.Register:
 			h.gil.Lock()
-			h.clients[conn.getIdBasedOnType()] = conn
+			h.clients[conn.GetIdBasedOnType()] = conn
 
 			h.gil.Unlock()
 		case conn := <-h.unregister:
 			h.gil.Lock()
-			if _, ok := h.clients[conn.getIdBasedOnType()]; ok {
-				delete(h.clients, conn.getIdBasedOnType())
+			if _, ok := h.clients[conn.GetIdBasedOnType()]; ok {
+				delete(h.clients, conn.GetIdBasedOnType())
 				conn.Deactivate()
 			}
 			h.gil.Unlock()

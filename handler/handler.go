@@ -29,13 +29,12 @@ type Handler struct {
 }
 
 func New(DB *gorm.DB, jwt jwt.Service, sec *secure.Service, redisDB *redis.Client) *Handler {
-	repo := repository.New(DB, redisDB)
-	services := services.New(repo)
-	hub := ws.NewHub()
 	SMS := sms.New(os.Getenv("TERMII_API_KEY"))
 	eta := eta.New(os.Getenv("MAPBOX_TOKEN"))
-
+	hub := ws.NewHub()
 	go hub.Run()
+	repo := repository.New(DB, redisDB)
+	services := services.New(repo, eta, hub)
 
 	return &Handler{
 		DB:                   DB,
@@ -65,5 +64,8 @@ func (h *Handler) Register(v1 *gin.RouterGroup) {
 	customers.GET("/", h.ListCustomers)
 	customers.GET("/:id", h.ViewCustomer)
 	customers.POST("/", h.CreateCustomer)
+
+	// test
+	// v1.GET("/testr/:id", h.GetOrder)
 
 }

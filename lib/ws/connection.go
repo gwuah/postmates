@@ -89,7 +89,7 @@ func (w *WSConnection) WritePump() {
 	}
 }
 
-func (w *WSConnection) getIdBasedOnType() string {
+func (w *WSConnection) GetIdBasedOnType() string {
 	if w.Entity == "electron" {
 		return fmt.Sprintf("electron_%s", w.Id)
 	} else {

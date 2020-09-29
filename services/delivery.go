@@ -1,40 +1,30 @@
 package services
 
 import (
-	"strings"
-
 	"github.com/gwuah/api/database/models"
 	"github.com/gwuah/api/shared"
 )
 
-func (s *Services) CreateNewDeliveryRequest(data shared.DeliveryRequest) (*models.Delivery, error) {
-
-	product, err := s.repo.FindProduct(data.ProductId)
+func (s *Services) CreateDelivery(data shared.DeliveryRequest) (*models.Delivery, *models.Order, error) {
+	order, err := s.repo.CreateOrder()
 
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	if strings.ToLower(product.Name) == "express" {
-		order, err := s.repo.CreateOrder()
+	delivery, err := s.repo.CreateDelivery(data, order)
 
-		if err != nil {
-			return nil, err
-		}
-
-		delivery, err := s.repo.CreateDelivery(data, order)
-
-		if err != nil {
-			return nil, err
-		}
-
-		return delivery, nil
-
-	} else if strings.ToLower(product.Name) == "pool" {
-
+	if err != nil {
+		return nil, nil, err
 	}
 
-	return nil, nil
+	order, err = s.repo.FindOrder(order.ID)
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return delivery, order, nil
 
 }
 
