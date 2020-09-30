@@ -1,5 +1,17 @@
 package models
 
+var (
+	STATUS_TYPES = map[string]string{
+		"pending":          "pending",
+		"pending_pickup":   "pending_pickup",
+		"nearing_pickup":   "nearing_pickup",
+		"delivery_ongoing": "delivery_ongoing",
+		"nearing_dropoff":  "nearing_dropoff",
+		"delivered":        "delivered",
+		"canceled":         "canceled",
+	}
+)
+
 type Delivery struct {
 	Model
 	Status               string   `json:"status"`

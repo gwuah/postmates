@@ -8,15 +8,96 @@ import (
 	"sort"
 	"time"
 
+	"github.com/go-redis/redis"
 	"github.com/gwuah/api/database/models"
 	"github.com/gwuah/api/lib/ws"
 	"github.com/gwuah/api/shared"
+	"github.com/gwuah/api/utils/geo"
 	"github.com/ryankurte/go-mapbox/lib/base"
 )
 
 var (
 	MAPBOX_ERROR = errors.New("Mapbox Request Failed")
 )
+
+func (s *Services) IndexElectronLocation(param shared.UserLocationUpdate) (*shared.User, error) {
+	newIndex := geo.CoordToIndex(param.Coord)
+
+	electron, err := s.repo.GetElectronFromRedis(param.Id)
+
+	if err == redis.Nil {
+		electron = &shared.User{
+			Id: param.Id,
+		}
+	}
+
+	if err != redis.Nil && err != nil {
+		return nil, err
+	}
+
+	oldIndex := electron.LastKnownIndex
+
+	electron.Coord = param.Coord
+	electron.LastKnownIndex = newIndex
+
+	err = s.repo.InsertElectronIntoRedis(electron)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if oldIndex != newIndex {
+		err = s.repo.RemoveElectronFromIndex(oldIndex, electron)
+		if err != nil {
+			return nil, err
+		}
+
+		err = s.repo.InsertElectronIntoIndex(newIndex, electron)
+		if err != nil {
+			return nil, err
+		}
+
+	}
+
+	return electron, nil
+}
+
+func (s *Services) GetClosestElectrons(coord shared.Coord, steps int) []string {
+
+	rings := geo.GetRingsFromOrigin(coord, steps)
+
+	electronsIds := []string{}
+
+	for _, index := range rings {
+		ids, err := s.repo.GetElectronsInIndex(index)
+
+		if err != nil {
+			log.Printf("Failed to load electrons in electron_index %d", index)
+			continue
+		}
+
+		if len(ids) > 0 {
+			electronsIds = append(electronsIds, ids...)
+		}
+	}
+
+	return electronsIds
+
+}
+
+func (s *Services) GetAllElectrons(ids []string) ([]*shared.User, error) {
+	electrons := []*shared.User{}
+
+	for _, id := range ids {
+		electron, err := s.repo.GetElectronFromRedis(id)
+		if err != nil {
+			log.Println("Failed To Load User", err)
+		}
+		electrons = append(electrons, electron)
+	}
+
+	return electrons, nil
+}
 
 func (s *Services) DispatchOrder(data shared.DeliveryRequest, order *models.Order, ws *ws.WSConnection) error {
 

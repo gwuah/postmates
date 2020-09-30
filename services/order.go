@@ -4,13 +4,23 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/gwuah/api/database/models"
 	"github.com/gwuah/api/lib/ws"
 	"github.com/gwuah/api/shared"
 )
 
 func (s *Services) AcceptOrder(data shared.AcceptOrder, ws *ws.WSConnection) error {
-	order, err := s.repo.FindAndUpdateOrder(data.OrderId, map[string]interface{}{
+	order, err := s.repo.UpdateOrder(data.OrderId, map[string]interface{}{
 		"ElectronID": ws.Id,
+	})
+
+	order, err = s.repo.FindOrder(data.OrderId)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.repo.UpdateDelivery(order.Deliveries[0].ID, map[string]interface{}{
+		"Status": models.STATUS_TYPES["pending_pickup"],
 	})
 
 	if err != nil {
