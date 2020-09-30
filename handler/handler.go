@@ -66,6 +66,6 @@ func (h *Handler) Register(v1 *gin.RouterGroup) {
 	customers.POST("/", h.CreateCustomer)
 
 	// test
-	// v1.GET("/testr/:id", h.GetOrder)
+	v1.GET("/testr/:id", h.GetOrder)
 
 }

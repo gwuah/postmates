@@ -1,0 +1,13 @@
+- data:
+    - vehicleModel: yahama
+      regNumber: GX 4888-10
+      type: motor
+      electronId: 1
+    - vehicleModel: yahama
+      regNumber: GM 44-10
+      type: motor
+      electronId: 2
+    - vehicleModel: kia morning
+      regNumber: GE 4993-10
+      type: Car
+      electronId: 3

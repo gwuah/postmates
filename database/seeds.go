@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/gwuah/api/database/models"
+	"github.com/gwuah/api/utils"
 	"github.com/kylelemons/go-gypsy/yaml"
 	"gorm.io/gorm"
 )
@@ -106,4 +107,61 @@ func SeedCustomers(DB *gorm.DB, path string) {
 			}
 		}
 	}
+}
+
+func SeedVehicles(DB *gorm.DB, path string) {
+	config, err := yaml.ReadFile(path + "/database/vehicles.yml")
+	if err != nil {
+		panic(err)
+	}
+
+	c, ok := config.Root.(yaml.List)
+
+	if !ok {
+		panic("failed to parse vehicles.yml")
+	}
+
+	cd, ok := c.Item(0).(yaml.Map)
+
+	if !ok {
+		panic("failed to parse vehicles.yml")
+	}
+
+	l, ok := cd["data"].(yaml.List)
+
+	if !ok {
+		panic("failed to parse vehicles.yml")
+	}
+	for _, v := range l {
+
+		value, ok := v.(yaml.Map)
+
+		if !ok {
+			panic("failed to parse vehicles.yml")
+		}
+
+		electronId := fmt.Sprintf("%v", value["electronId"])
+		vehicleModel := fmt.Sprintf("%v", value["vehicleModel"])
+		regNumber := fmt.Sprintf("%v", value["regNumber"])
+		Type := fmt.Sprintf("%v", value["type"])
+
+		vehicle := models.Vehicle{
+			ElectronID:   uint(utils.ConvertToUint64(electronId)),
+			VehicleModel: vehicleModel,
+			RegNumber:    regNumber,
+			Type:         utils.ConvertToVehicleType(Type),
+			Active:       false,
+		}
+
+		if err := DB.Where("reg_number = ?", vehicle.RegNumber).First(&models.Vehicle{}).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				DB.Create(&vehicle)
+			} else {
+				log.Printf("Vehicle [ %s ] lookup failed", vehicle.RegNumber)
+				log.Println(err)
+			}
+		}
+
+	}
+
 }

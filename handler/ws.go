@@ -22,6 +22,52 @@ var MESSAGE_TYPES = map[string]string{
 	"AcceptOrder":           "AcceptOrder",
 }
 
+func (h *Handler) handleConnection(entity string) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		id := c.Param("id")
+		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+
+		if err != nil {
+			log.Println("Failed to setup websocket conn ..", err)
+			return
+		}
+
+		wsConnection := &ws.WSConnection{
+			Hub:                    h.Hub,
+			Send:                   make(chan []byte),
+			Conn:                   conn,
+			Id:                     id,
+			Entity:                 entity,
+			ProcessMessage:         h.processIncomingMessage,
+			IsActive:               true,
+			AcceptDeliveryPipeline: make(chan []byte),
+		}
+
+		h.Hub.Register <- wsConnection
+
+		go wsConnection.ReadPump()
+		go wsConnection.WritePump()
+
+	}
+}
+
+func (h *Handler) processIncomingMessage(message []byte, ws *ws.WSConnection) {
+	switch string(h.getTypeOfMessage(message)) {
+	case MESSAGE_TYPES["DeliveryRequest"]:
+		h.handleDeliveryRequest(message, ws)
+	case MESSAGE_TYPES["CancelDelivery"]:
+		h.handleDeliveryCancellation(message, ws)
+	case MESSAGE_TYPES["IndexElectronLocation"]:
+		h.handleElectronLocationUpdate(message, ws)
+	case MESSAGE_TYPES["GetClosestElectrons"]:
+		h.handleGetClosestElectrons(message, ws)
+	case MESSAGE_TYPES["AcceptOrder"]:
+		h.handleAcceptOrder(message, ws)
+	default:
+		log.Printf("No handler available for request %s", h.getTypeOfMessage(message))
+	}
+}
+
 func (h *Handler) getTypeOfMessage(message []byte) []byte {
 	// this method pre-parses the message and extracts the type of message from the payload
 	// this is done to speedup parsing and reduce size of marshalled/unmarshalled payload
@@ -50,50 +96,4 @@ func (h *Handler) getTypeOfMessage(message []byte) []byte {
 
 	return head[1 : len(head)-1]
 
-}
-
-func (h *Handler) processIncomingMessage(message []byte, ws *ws.WSConnection) {
-	switch string(h.getTypeOfMessage(message)) {
-	case MESSAGE_TYPES["DeliveryRequest"]:
-		h.handleDeliveryRequest(message, ws)
-	case MESSAGE_TYPES["CancelDelivery"]:
-		h.handleDeliveryCancellation(message, ws)
-	case MESSAGE_TYPES["IndexElectronLocation"]:
-		h.handleElectronLocationUpdate(message, ws)
-	case MESSAGE_TYPES["GetClosestElectrons"]:
-		h.handleGetClosestElectrons(message, ws)
-	case MESSAGE_TYPES["AcceptOrder"]:
-		h.handleAcceptOrder(message, ws)
-	default:
-		log.Printf("No handler available for request %s", h.getTypeOfMessage(message))
-	}
-}
-
-func (h *Handler) handleConnection(entity string) func(c *gin.Context) {
-	return func(c *gin.Context) {
-		id := c.Param("id")
-		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
-
-		if err != nil {
-			log.Println("Failed to setup websocket conn ..", err)
-			return
-		}
-
-		wsConnection := &ws.WSConnection{
-			Hub:                    h.Hub,
-			Send:                   make(chan []byte),
-			Conn:                   conn,
-			Id:                     id,
-			Entity:                 entity,
-			ProcessMessage:         h.processIncomingMessage,
-			IsActive:               true,
-			AcceptDeliveryPipeline: make(chan []byte),
-		}
-
-		h.Hub.Register <- wsConnection
-
-		go wsConnection.ReadPump()
-		go wsConnection.WritePump()
-
-	}
 }

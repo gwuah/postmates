@@ -24,7 +24,7 @@ func (r *Repository) CreateOrder() (*models.Order, error) {
 
 func (r *Repository) FindOrder(id uint) (*models.Order, error) {
 
-	order := models.Order{Electron: &models.Electron{}}
+	order := models.Order{Electron: models.Electron{}}
 
 	if err := r.DB.First(&order, id).Error; err != nil {
 		return nil, err

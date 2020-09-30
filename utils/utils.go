@@ -4,7 +4,10 @@ import (
 	"crypto/rand"
 	"fmt"
 	"io"
+	"strconv"
+	"strings"
 
+	"github.com/gwuah/api/database/models"
 	"github.com/gwuah/api/shared"
 )
 
@@ -29,4 +32,20 @@ func GenerateOTP() string {
 
 func StringifyLngLat(props shared.Coord) string {
 	return fmt.Sprintf("%f,%f", props.Longitude, props.Latitude)
+}
+
+func ConvertToUint64(num string) uint64 {
+	id64, _ := strconv.ParseUint(num, 10, 64)
+	return id64
+}
+
+func ConvertToVehicleType(id string) models.VehicleType {
+	switch strings.ToLower(id) {
+	case "motor":
+		return models.Motor
+	case "car":
+		return models.Car
+	default:
+		return models.Motor
+	}
 }

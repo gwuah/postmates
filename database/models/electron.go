@@ -8,4 +8,6 @@ type Electron struct {
 	Longitude  float64 `json:"longitude"`
 	Latitude   float64 `json:"latitude"`
 	Orders     []Order `json:"orders"`
+	Status     Status  `json:"status"`
+	Vehicle    Vehicle `json:"vehicle"`
 }

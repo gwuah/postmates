@@ -41,7 +41,7 @@ func main() {
 		log.Fatal("Failed To Connect To Postgresql database")
 	}
 
-	err = postgres.SetupDatabase(db, &models.Customer{}, &models.Delivery{}, &models.Electron{}, &models.Order{})
+	err = postgres.SetupDatabase(db, &models.Customer{}, &models.Delivery{}, &models.Electron{}, &models.Order{}, &models.Vehicle{})
 
 	if err != nil {
 		log.Fatal("Failed To Setup Tables")
@@ -51,6 +51,7 @@ func main() {
 		database.SeedProducts,
 		database.SeedElectrons,
 		database.SeedCustomers,
+		database.SeedVehicles,
 	})
 
 	sec := secure.New(1, sha1.New())

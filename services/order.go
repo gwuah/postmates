@@ -1,7 +1,6 @@
 package services
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/gwuah/api/database/models"
@@ -13,6 +12,9 @@ func (s *Services) AcceptOrder(data shared.AcceptOrder, ws *ws.WSConnection) err
 	order, err := s.repo.UpdateOrder(data.OrderId, map[string]interface{}{
 		"ElectronID": ws.Id,
 	})
+	if err != nil {
+		return err
+	}
 
 	order, err = s.repo.FindOrder(data.OrderId)
 	if err != nil {
@@ -20,27 +22,28 @@ func (s *Services) AcceptOrder(data shared.AcceptOrder, ws *ws.WSConnection) err
 	}
 
 	_, err = s.repo.UpdateDelivery(order.Deliveries[0].ID, map[string]interface{}{
-		"Status": models.STATUS_TYPES["pending_pickup"],
+		"Status": models.PendingPickup,
 	})
-
 	if err != nil {
 		return err
 	}
 
-	electron := s.hub.GetClient(ws.GetIdBasedOnType())
-	if electron == nil {
-		return errors.New("electron has disconnected from server")
+	_, err = s.repo.UpdateElectron(order.ElectronID, map[string]interface{}{
+		"Status": models.Dispatched,
+	})
+	if err != nil {
+		return err
 	}
 
 	go func() {
-		electron.AcceptDeliveryRequest([]byte("Trip Accepted"))
+		ws.AcceptDeliveryRequest([]byte("Trip Accepted"))
 	}()
 
 	for _, d := range order.Deliveries {
 		customer := s.hub.GetClient(fmt.Sprintf("customer_%d", d.CustomerID))
 		if customer != nil {
 			go func() {
-				customer.SendMessage([]byte(fmt.Sprintf("Trip Accepted by electron %s", electron.Id)))
+				customer.SendMessage([]byte(fmt.Sprintf("Trip Accepted by electron %s", ws.Id)))
 			}()
 		}
 	}

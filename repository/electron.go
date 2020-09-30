@@ -4,9 +4,20 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/gwuah/api/database/models"
 	"github.com/gwuah/api/shared"
 	"github.com/uber/h3-go"
 )
+
+func (r *Repository) UpdateElectron(id uint, data map[string]interface{}) (*models.Electron, error) {
+	electron := models.Electron{}
+
+	if err := r.DB.Model(&electron).Where("id = ?", id).Updates(data).Error; err != nil {
+		return nil, err
+	}
+
+	return &electron, nil
+}
 
 func (r *Repository) GetElectronFromRedis(id string) (*shared.User, error) {
 	var user shared.User

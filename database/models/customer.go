@@ -13,7 +13,7 @@ type Model struct {
 
 type Customer struct {
 	Model
-	Status    string  `json:"status"`
+	Status    Status  `json:"status"`
 	Phone     string  `gorm:"not null;unique" json:"phone"`
 	FirstName string  `json:"firstName"`
 	LastName  string  `json:"lastName"`

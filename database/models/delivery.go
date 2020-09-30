@@ -1,20 +1,30 @@
 package models
 
-var (
-	STATUS_TYPES = map[string]string{
-		"pending":          "pending",
-		"pending_pickup":   "pending_pickup",
-		"nearing_pickup":   "nearing_pickup",
-		"delivery_ongoing": "delivery_ongoing",
-		"nearing_dropoff":  "nearing_dropoff",
-		"delivered":        "delivered",
-		"canceled":         "canceled",
-	}
+type Status string
+
+const (
+	// delivery status types
+	Pending         Status = "pending"
+	PendingPickup          = "pending_pickup"
+	NearingPickup          = "nearing_pickup"
+	DeliveryOngoing        = "delivery_ongoing"
+	NearingDropoff         = "nearing_dropoff"
+	Delivered              = "delivered"
+	Cancelled              = "cancelled"
+
+	// electron status types
+	AwaitingDispatch = "awaiting_dispatch"
+	Dispatched       = "dispatched"
+	OnTrip           = "on_trip"
+	Offline          = "offline"
+
+	// vehicle status
+	Inactive = "inactive"
 )
 
 type Delivery struct {
 	Model
-	Status               string   `json:"status"`
+	Status               Status   `json:"status"`
 	OriginLongitude      float64  `json:"originLongitude"`
 	OriginLatitude       float64  `json:"originLatitude"`
 	DestinationLongitude float64  `json:"destinationLongitude"`
