@@ -28,7 +28,7 @@ func (h *Handler) handleConnection(entity string) func(c *gin.Context) {
 		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 
 		if err != nil {
-			log.Println("Failed to setup websocket conn ..", err)
+			log.Println("failed to setup websocket conn ..", err)
 			return
 		}
 

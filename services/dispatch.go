@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	MAPBOX_ERROR = errors.New("Mapbox Request Failed")
+	MAPBOX_ERROR = errors.New("Mapbox Request failed")
 )
 
 func (s *Services) IndexElectronLocation(param shared.UserLocationUpdate) (*shared.User, error) {
@@ -72,7 +72,7 @@ func (s *Services) GetClosestElectrons(coord shared.Coord, steps int) []string {
 		ids, err := s.repo.GetElectronsInIndex(index)
 
 		if err != nil {
-			log.Printf("Failed to load electrons in electron_index %d", index)
+			log.Printf("failed to load electrons in electron_index %d", index)
 			continue
 		}
 
@@ -91,7 +91,7 @@ func (s *Services) GetAllElectrons(ids []string) ([]*shared.User, error) {
 	for _, id := range ids {
 		electron, err := s.repo.GetElectronFromRedis(id)
 		if err != nil {
-			log.Println("Failed To Load User", err)
+			log.Println("failed To Load User", err)
 		}
 		electrons = append(electrons, electron)
 	}

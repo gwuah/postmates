@@ -16,20 +16,20 @@ func (h *Handler) handleElectronLocationUpdate(message []byte, ws *ws.WSConnecti
 	var data shared.UserLocationUpdate
 	err := json.Unmarshal(message, &data)
 	if err != nil {
-		log.Println("Failed to parse message", err)
+		log.Println("failed to parse message", err)
 		return
 	}
 
 	electron, err := h.Services.IndexElectronLocation(data)
 	if err != nil {
-		log.Println("Failed to marshal message", err)
+		log.Println("failed to marshal message", err)
 		return
 	}
 
 	_, err = json.Marshal(electron)
 
 	if err != nil {
-		log.Println("Failed to marshal message", err)
+		log.Println("failed to marshal message", err)
 		return
 	}
 
@@ -40,7 +40,7 @@ func (h *Handler) handleGetClosestElectrons(message []byte, ws *ws.WSConnection)
 	var data shared.GetClosestElectronsRequest
 	err := json.Unmarshal(message, &data)
 	if err != nil {
-		log.Println("Failed to parse message", err)
+		log.Println("failed to parse message", err)
 		return
 	}
 
@@ -51,7 +51,7 @@ func (h *Handler) handleGetClosestElectrons(message []byte, ws *ws.WSConnection)
 	})
 
 	if err != nil {
-		log.Println("Failed to marshal message", err)
+		log.Println("failed to marshal message", err)
 		return
 	}
 

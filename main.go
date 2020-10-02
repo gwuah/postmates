@@ -38,13 +38,13 @@ func main() {
 	})
 
 	if err != nil {
-		log.Fatal("Failed To Connect To Postgresql database")
+		log.Fatal("failed To Connect To Postgresql database")
 	}
 
 	err = postgres.SetupDatabase(db, &models.Customer{}, &models.Delivery{}, &models.Electron{}, &models.Order{}, &models.Vehicle{})
 
 	if err != nil {
-		log.Fatal("Failed To Setup Tables")
+		log.Fatal("failed To Setup Tables")
 	}
 
 	database.RunSeeds(db, []database.SeedFn{
@@ -75,7 +75,7 @@ func main() {
 	})
 
 	if err != nil {
-		log.Fatal("Failed to initialize mapbox", err)
+		log.Fatal("failed to initialize mapbox", err)
 	}
 
 	s := server.New()

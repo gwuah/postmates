@@ -19,13 +19,13 @@ func (h *Handler) acceptDelivery(message []byte, ws *ws.WSConnection) {
 	err := json.Unmarshal(message, &data)
 
 	if err != nil {
-		log.Println("Failed to parse message", err)
+		log.Println("failed to parse message", err)
 		return
 	}
 
 	err = h.Services.AcceptDelivery(data, ws)
 	if err != nil {
-		log.Println("Failed to accept delivery", err)
+		log.Println("failed to accept delivery", err)
 		return
 	}
 
@@ -36,13 +36,13 @@ func (h *Handler) processDeliveryRequest(message []byte, ws *ws.WSConnection) {
 
 	err := json.Unmarshal(message, &data)
 	if err != nil {
-		log.Println("Failed to parse message", err)
+		log.Println("failed to parse message", err)
 		return
 	}
 
 	product, err := h.Repo.FindProduct(data.ProductId)
 	if err != nil {
-		log.Printf("Failed to find product with id (%d)", data.ProductId)
+		log.Printf("failed to find product with id (%d)", data.ProductId)
 		log.Println(err)
 		return
 	}
@@ -70,7 +70,7 @@ func (h *Handler) handleDeliveryCancellation(message []byte, ws *ws.WSConnection
 	var data shared.CancelDeliveryRequest
 	err := json.Unmarshal(message, &data)
 	if err != nil {
-		log.Println("Failed to parse message", err)
+		log.Println("failed to parse message", err)
 		return
 
 	}

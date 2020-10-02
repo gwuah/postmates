@@ -77,7 +77,7 @@ func (w *WSConnection) WritePump() {
 			err := w.Conn.WriteMessage(websocket.TextMessage, message)
 
 			if err != nil {
-				log.Println("Failed to Send message to client", err)
+				log.Println("failed to Send message to client", err)
 			}
 
 		case <-ticker.C:

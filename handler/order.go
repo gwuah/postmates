@@ -22,13 +22,13 @@ func (h *Handler) GetOrder(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Failed To Retrieve Order",
+			"message": "failed To Retrieve Order",
 		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Success",
+		"message": "success",
 		"order":   order,
 	})
 	return

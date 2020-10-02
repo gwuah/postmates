@@ -1,6 +1,7 @@
 package services
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/gwuah/api/database/models"
@@ -15,7 +16,6 @@ func (s *Services) CreateDelivery(data shared.DeliveryRequest) (*models.Delivery
 		return nil, err
 	}
 	return delivery, nil
-
 }
 
 func (s *Services) AcceptDelivery(data shared.AcceptDelivery, ws *ws.WSConnection) error {
@@ -39,14 +39,34 @@ func (s *Services) AcceptDelivery(data shared.AcceptDelivery, ws *ws.WSConnectio
 	}()
 
 	delivery, err := s.repo.FindDelivery(data.DeliveryId)
+	if err != nil {
+		return err
+	}
+
+	electron, err := s.repo.FindElectron(*delivery.ElectronID)
+	if err != nil {
+		return err
+	}
+
 	customer := s.hub.GetClient(fmt.Sprintf("customer_%d", delivery.CustomerID))
 	if customer != nil {
 		go func() {
-			customer.SendMessage([]byte(fmt.Sprintf("Trip Accepted by electron %s", ws.Id)))
+			acceptanceDataStruct := shared.DeliveryAcceptedPayload{
+				Meta: shared.Meta{
+					Type: "DeliveryAccepted",
+				},
+				Electron: *electron,
+				Delivery: *delivery,
+				Eta:      44,
+			}
+			acceptanceData, err := json.Marshal(acceptanceDataStruct)
+			if err != nil {
+				return
+			}
+			customer.SendMessage(acceptanceData)
 		}()
 	}
 	return nil
-
 }
 
 func (s *Services) CancelDelivery(data shared.CancelDeliveryRequest) bool {

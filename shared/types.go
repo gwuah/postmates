@@ -60,6 +60,9 @@ type ElectronWithEta struct {
 	Duration float64
 }
 
-type DeliveryAccepted struct {
-	Meta Meta `json:"meta"`
+type DeliveryAcceptedPayload struct {
+	Meta     Meta            `json:"meta"`
+	Electron models.Electron `json:"electron"`
+	Delivery models.Delivery `json:"delivery"`
+	Eta      int             `json:"eta"`
 }

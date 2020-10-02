@@ -47,14 +47,14 @@ func (h *Handler) Signup(c *gin.Context) {
 
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Failed To Signup Customer",
+			"message": "failed To Signup Customer",
 		})
 		return
 	}
 
 	if result.RowsAffected > 0 {
 		c.JSON(http.StatusOK, gin.H{
-			"message":  "Success",
+			"message":  "success",
 			"customer": customer,
 		})
 		return
@@ -124,7 +124,7 @@ func (h *Handler) Login(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":      "Success",
+		"message":      "success",
 		"token":        token,
 		"refreshToken": refreshToken,
 	})
@@ -183,7 +183,7 @@ func (h *Handler) VerifyOTP(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":      "Success",
+		"message":      "success",
 		"token":        token,
 		"refreshToken": refreshToken,
 	})
@@ -217,7 +217,7 @@ func (h *Handler) Refresh(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Success",
+		"message": "success",
 		"token":   newToken,
 	})
 	return

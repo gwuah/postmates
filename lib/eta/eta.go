@@ -21,7 +21,7 @@ func New(token string) *Eta {
 	mapBox, err := mapbox.NewMapbox(token)
 
 	if err != nil {
-		log.Fatal("Failed to initialize mapbox", err)
+		log.Fatal("failed to initialize mapbox", err)
 	}
 
 	return &Eta{
@@ -40,7 +40,7 @@ func (e *Eta) _getDurationFromOrigin(origin base.Location, destinations []base.L
 
 	response, err := e.mapBox.DirectionsMatrix.GetDirectionsMatrix(destinations, directionsmatrix.RoutingDriving, &opts)
 	if err != nil {
-		log.Println("Failed to get ETA", err)
+		log.Println("failed to get ETA", err)
 	}
 
 	return response

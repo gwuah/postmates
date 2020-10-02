@@ -10,4 +10,5 @@ type Electron struct {
 	Status     Status     `json:"status"`
 	Vehicle    Vehicle    `json:"vehicle"`
 	Deliveries []Delivery `json:"deliveries"`
+	PhotoUrl   string     `json:"photoUrl"`
 }
