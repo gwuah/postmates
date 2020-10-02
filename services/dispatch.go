@@ -99,9 +99,8 @@ func (s *Services) GetAllElectrons(ids []string) ([]*shared.User, error) {
 	return electrons, nil
 }
 
-func (s *Services) DispatchOrder(data shared.DeliveryRequest, order *models.Order, ws *ws.WSConnection) error {
+func (s *Services) DispatchDelivery(data shared.DeliveryRequest, delivery *models.Delivery, ws *ws.WSConnection) error {
 
-	delivery := order.Deliveries[0]
 	ids := s.GetClosestElectrons(shared.Coord{
 		Latitude:  delivery.OriginLatitude,
 		Longitude: delivery.OriginLongitude,
@@ -152,11 +151,16 @@ func (s *Services) DispatchOrder(data shared.DeliveryRequest, order *models.Orde
 		return e[i].Duration < e[j].Duration
 	})
 
-	d := shared.NewOrder{
+	delivery, err = s.repo.FindDelivery(delivery.ID)
+	if err != nil {
+		return nil
+	}
+
+	d := shared.NewDelivery{
 		Meta: shared.Meta{
-			Type: "NewOrder",
+			Type: "NewDelivery",
 		},
-		Order: order,
+		Delivery: delivery,
 	}
 
 	convertedValue, err := json.Marshal(d)

@@ -7,7 +7,18 @@ import (
 	"github.com/gwuah/api/database/models"
 	"github.com/gwuah/api/shared"
 	"github.com/uber/h3-go"
+	"gorm.io/gorm/clause"
 )
+
+func (r *Repository) FindElectron(id uint) (*models.Electron, error) {
+	electron := models.Electron{}
+
+	if err := r.DB.Preload(clause.Associations).First(&electron, id).Error; err != nil {
+		return nil, err
+	}
+
+	return &electron, nil
+}
 
 func (r *Repository) UpdateElectron(id uint, data map[string]interface{}) (*models.Electron, error) {
 	electron := models.Electron{}

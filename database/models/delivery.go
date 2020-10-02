@@ -36,8 +36,9 @@ type Delivery struct {
 	Notes                string   `json:"notes"`
 	CustomerID           uint     `json:"customerId"`
 	Customer             Customer `json:"customer"`
-	OrderID              uint     `json:"orderId"`
-	Order                Order    `json:"order"`
 	ProductID            uint     `json:"productId"`
 	Product              Product  `json:"product"`
+	Eta                  int      `json:"eta"`
+	ElectronID           *uint    `json:"electronId"`
+	Electron             Electron `json:"electron"`
 }

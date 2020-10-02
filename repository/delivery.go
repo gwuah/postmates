@@ -6,14 +6,13 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func (r *Repository) CreateDelivery(data shared.DeliveryRequest, order *models.Order) (*models.Delivery, error) {
+func (r *Repository) CreateDelivery(data shared.DeliveryRequest) (*models.Delivery, error) {
 	delivery := models.Delivery{
 		OriginLatitude:       data.Origin.Latitude,
 		OriginLongitude:      data.Origin.Longitude,
 		DestinationLatitude:  data.Destination.Latitude,
 		DestinationLongitude: data.Destination.Longitude,
 		Notes:                data.Notes,
-		OrderID:              order.ID,
 		ProductID:            data.ProductId,
 		CustomerID:           data.CustomerID,
 		Status:               models.Pending,

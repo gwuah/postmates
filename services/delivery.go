@@ -1,30 +1,51 @@
 package services
 
 import (
+	"fmt"
+
 	"github.com/gwuah/api/database/models"
+	"github.com/gwuah/api/lib/ws"
 	"github.com/gwuah/api/shared"
+	"github.com/gwuah/api/utils"
 )
 
-func (s *Services) CreateDelivery(data shared.DeliveryRequest) (*models.Delivery, *models.Order, error) {
-	order, err := s.repo.CreateOrder()
-
+func (s *Services) CreateDelivery(data shared.DeliveryRequest) (*models.Delivery, error) {
+	delivery, err := s.repo.CreateDelivery(data)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
+	}
+	return delivery, nil
+
+}
+
+func (s *Services) AcceptDelivery(data shared.AcceptDelivery, ws *ws.WSConnection) error {
+	_, err := s.repo.UpdateDelivery(data.DeliveryId, map[string]interface{}{
+		"Status":     models.PendingPickup,
+		"ElectronID": ws.Id,
+	})
+	if err != nil {
+		return err
 	}
 
-	delivery, err := s.repo.CreateDelivery(data, order)
-
+	_, err = s.repo.UpdateElectron(uint(utils.ConvertToUint64(ws.Id)), map[string]interface{}{
+		"Status": models.Dispatched,
+	})
 	if err != nil {
-		return nil, nil, err
+		return err
 	}
 
-	order, err = s.repo.FindOrder(order.ID)
+	go func() {
+		ws.AcceptDeliveryRequest([]byte("Trip Accepted"))
+	}()
 
-	if err != nil {
-		return nil, nil, err
+	delivery, err := s.repo.FindDelivery(data.DeliveryId)
+	customer := s.hub.GetClient(fmt.Sprintf("customer_%d", delivery.CustomerID))
+	if customer != nil {
+		go func() {
+			customer.SendMessage([]byte(fmt.Sprintf("Trip Accepted by electron %s", ws.Id)))
+		}()
 	}
-
-	return delivery, order, nil
+	return nil
 
 }
 

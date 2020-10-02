@@ -13,9 +13,9 @@ type ElectronWithEta struct {
 	Duration float64
 }
 
-func (h *Handler) handleAcceptOrder(message []byte, ws *ws.WSConnection) {
+func (h *Handler) acceptDelivery(message []byte, ws *ws.WSConnection) {
 
-	var data shared.AcceptOrder
+	var data shared.AcceptDelivery
 	err := json.Unmarshal(message, &data)
 
 	if err != nil {
@@ -23,15 +23,15 @@ func (h *Handler) handleAcceptOrder(message []byte, ws *ws.WSConnection) {
 		return
 	}
 
-	err = h.Services.AcceptOrder(data, ws)
+	err = h.Services.AcceptDelivery(data, ws)
 	if err != nil {
-		log.Println("Failed to accept order", err)
+		log.Println("Failed to accept delivery", err)
 		return
 	}
 
 }
 
-func (h *Handler) handleDeliveryRequest(message []byte, ws *ws.WSConnection) {
+func (h *Handler) processDeliveryRequest(message []byte, ws *ws.WSConnection) {
 	var data shared.DeliveryRequest
 
 	err := json.Unmarshal(message, &data)
@@ -49,15 +49,15 @@ func (h *Handler) handleDeliveryRequest(message []byte, ws *ws.WSConnection) {
 
 	if product.Name == "express" {
 
-		_, order, err := h.Services.CreateDelivery(data)
+		delivery, err := h.Services.CreateDelivery(data)
 		if err != nil {
 			log.Println("failed to create delivery", err)
 			return
 		}
 
-		err = h.Services.DispatchOrder(data, order, ws)
+		err = h.Services.DispatchDelivery(data, delivery, ws)
 		if err != nil {
-			log.Println("failed to dispatch order", err)
+			log.Println("failed to dispatch delivery", err)
 			return
 		}
 

@@ -19,7 +19,7 @@ var MESSAGE_TYPES = map[string]string{
 	"GetEstimate":           "GetEstimate",
 	"IndexElectronLocation": "IndexElectronLocation",
 	"GetClosestElectrons":   "GetClosestElectrons",
-	"AcceptOrder":           "AcceptOrder",
+	"AcceptDelivery":        "AcceptDelivery",
 }
 
 func (h *Handler) handleConnection(entity string) func(c *gin.Context) {
@@ -54,15 +54,15 @@ func (h *Handler) handleConnection(entity string) func(c *gin.Context) {
 func (h *Handler) processIncomingMessage(message []byte, ws *ws.WSConnection) {
 	switch string(h.getTypeOfMessage(message)) {
 	case MESSAGE_TYPES["DeliveryRequest"]:
-		h.handleDeliveryRequest(message, ws)
+		h.processDeliveryRequest(message, ws)
 	case MESSAGE_TYPES["CancelDelivery"]:
 		h.handleDeliveryCancellation(message, ws)
 	case MESSAGE_TYPES["IndexElectronLocation"]:
 		h.handleElectronLocationUpdate(message, ws)
 	case MESSAGE_TYPES["GetClosestElectrons"]:
 		h.handleGetClosestElectrons(message, ws)
-	case MESSAGE_TYPES["AcceptOrder"]:
-		h.handleAcceptOrder(message, ws)
+	case MESSAGE_TYPES["AcceptDelivery"]:
+		h.acceptDelivery(message, ws)
 	default:
 		log.Printf("No handler available for request %s", h.getTypeOfMessage(message))
 	}

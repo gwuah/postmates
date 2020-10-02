@@ -45,17 +45,21 @@ type GetClosestElectronsRequest struct {
 	Origin Coord  `json:"origin"`
 }
 
-type NewOrder struct {
-	Meta  Meta          `json:"meta"`
-	Order *models.Order `json:"order"`
+type NewDelivery struct {
+	Meta     Meta             `json:"meta"`
+	Delivery *models.Delivery `json:"delivery"`
 }
 
-type AcceptOrder struct {
-	Meta    Meta `json:"meta"`
-	OrderId uint `json:"orderId"`
+type AcceptDelivery struct {
+	Meta       Meta `json:"meta"`
+	DeliveryId uint `json:"deliveryId"`
 }
 
 type ElectronWithEta struct {
 	Electron *User
 	Duration float64
+}
+
+type DeliveryAccepted struct {
+	Meta Meta `json:"meta"`
 }
