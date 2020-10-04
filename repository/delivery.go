@@ -25,7 +25,7 @@ func (r *Repository) CreateDelivery(data shared.DeliveryRequest) (*models.Delive
 	return &delivery, nil
 }
 
-func (r *Repository) FindDelivery(id uint) (*models.Delivery, error) {
+func (r *Repository) FindDelivery(id uint, loadAssociations bool) (*models.Delivery, error) {
 
 	var delivery models.Delivery
 
@@ -33,7 +33,9 @@ func (r *Repository) FindDelivery(id uint) (*models.Delivery, error) {
 		return nil, err
 	}
 
-	r.DB.Preload(clause.Associations).Find(&delivery)
+	if loadAssociations {
+		r.DB.Preload(clause.Associations).Find(&delivery)
+	}
 
 	return &delivery, nil
 }

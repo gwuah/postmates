@@ -18,7 +18,7 @@ func (h *Handler) GetOrder(c *gin.Context) {
 
 	id64 := utils.ConvertToUint64(id)
 
-	order, err := h.Repo.FindDelivery(uint(id64))
+	order, err := h.Repo.FindDelivery(uint(id64), true)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

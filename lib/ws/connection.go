@@ -16,15 +16,15 @@ const (
 )
 
 type WSConnection struct {
-	Id                     string
-	Hub                    *Hub
-	Room                   string
-	Conn                   *websocket.Conn
-	Send                   chan []byte
-	ProcessMessage         func(msg []byte, ws *WSConnection)
-	Entity                 string
-	IsActive               bool
-	AcceptDeliveryPipeline chan []byte
+	Id                    string
+	Hub                   *Hub
+	Room                  string
+	Conn                  *websocket.Conn
+	Send                  chan []byte
+	ProcessMessage        func(msg []byte, ws *WSConnection)
+	Entity                string
+	IsActive              bool
+	DeliveryAcceptanceAck chan bool
 }
 
 func (w *WSConnection) Deactivate() {
@@ -113,9 +113,9 @@ func (w *WSConnection) SendMessage(message []byte) {
 	}
 }
 
-func (w *WSConnection) AcceptDeliveryRequest(message []byte) {
+func (w *WSConnection) AckDeliveryAcceptance(status bool) {
 	if w.IsActive {
-		w.AcceptDeliveryPipeline <- message
+		w.DeliveryAcceptanceAck <- status
 	} else {
 		log.Println("Can't send message to closed socket conn", w.Id, w.Entity)
 	}

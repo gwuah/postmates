@@ -1,8 +1,14 @@
 package shared
 
 import (
+	"errors"
+
 	"github.com/gwuah/api/database/models"
 	"github.com/uber/h3-go"
+)
+
+var (
+	MAPBOX_ERROR = errors.New("Mapbox Request failed")
 )
 
 type Meta struct {
@@ -64,5 +70,5 @@ type DeliveryAcceptedPayload struct {
 	Meta     Meta            `json:"meta"`
 	Electron models.Electron `json:"electron"`
 	Delivery models.Delivery `json:"delivery"`
-	Eta      int             `json:"eta"`
+	Eta      float64         `json:"eta"`
 }

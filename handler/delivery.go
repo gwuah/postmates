@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 
+	"github.com/gwuah/api/database/models"
 	"github.com/gwuah/api/lib/ws"
 	"github.com/gwuah/api/shared"
 )
@@ -37,6 +38,15 @@ func (h *Handler) processDeliveryRequest(message []byte, ws *ws.WSConnection) {
 	err := json.Unmarshal(message, &data)
 	if err != nil {
 		log.Println("failed to parse message", err)
+		return
+	}
+
+	_, err = h.Repo.UpdateCustomer(data.CustomerID, map[string]interface{}{
+		"Status": models.Searching,
+	})
+
+	if err != nil {
+		log.Println("failed to update customer", err)
 		return
 	}
 

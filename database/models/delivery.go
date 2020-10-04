@@ -7,8 +7,10 @@ const (
 	Pending         Status = "pending"
 	PendingPickup          = "pending_pickup"
 	NearingPickup          = "nearing_pickup"
+	AtPickup               = "at_pickup"
 	DeliveryOngoing        = "delivery_ongoing"
 	NearingDropoff         = "nearing_dropoff"
+	AtDropOff              = "at_dropoff"
 	Delivered              = "delivered"
 	Cancelled              = "cancelled"
 
@@ -20,6 +22,10 @@ const (
 
 	// vehicle status
 	Inactive = "inactive"
+
+	// customer status
+	Searching = "searching"
+	AtRest    = "atRest"
 )
 
 type Delivery struct {

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -25,6 +26,8 @@ var MESSAGE_TYPES = map[string]string{
 func (h *Handler) handleConnection(entity string) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		id := c.Param("id")
+		// this is unsafe, in future we have to set a static list of accepted origins
+		upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 
 		if err != nil {
@@ -33,14 +36,14 @@ func (h *Handler) handleConnection(entity string) func(c *gin.Context) {
 		}
 
 		wsConnection := &ws.WSConnection{
-			Hub:                    h.Hub,
-			Send:                   make(chan []byte),
-			Conn:                   conn,
-			Id:                     id,
-			Entity:                 entity,
-			ProcessMessage:         h.processIncomingMessage,
-			IsActive:               true,
-			AcceptDeliveryPipeline: make(chan []byte),
+			Hub:                   h.Hub,
+			Send:                  make(chan []byte),
+			Conn:                  conn,
+			Id:                    id,
+			Entity:                entity,
+			ProcessMessage:        h.processIncomingMessage,
+			IsActive:              true,
+			DeliveryAcceptanceAck: make(chan bool),
 		}
 
 		h.Hub.Register <- wsConnection

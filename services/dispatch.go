@@ -2,7 +2,6 @@ package services
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"sort"
@@ -14,10 +13,6 @@ import (
 	"github.com/gwuah/api/shared"
 	"github.com/gwuah/api/utils/geo"
 	"github.com/ryankurte/go-mapbox/lib/base"
-)
-
-var (
-	MAPBOX_ERROR = errors.New("Mapbox Request failed")
 )
 
 func (s *Services) IndexElectronLocation(param shared.UserLocationUpdate) (*shared.User, error) {
@@ -101,6 +96,10 @@ func (s *Services) GetAllElectrons(ids []string) ([]*shared.User, error) {
 
 func (s *Services) DispatchDelivery(data shared.DeliveryRequest, delivery *models.Delivery, ws *ws.WSConnection) error {
 
+	foundElectronForOrder := false
+
+dispatchLogic:
+
 	ids := s.GetClosestElectrons(shared.Coord{
 		Latitude:  delivery.OriginLatitude,
 		Longitude: delivery.OriginLongitude,
@@ -133,7 +132,7 @@ func (s *Services) DispatchDelivery(data shared.DeliveryRequest, delivery *model
 	}, coords)
 
 	if response.Code != "Ok" {
-		return MAPBOX_ERROR
+		return shared.MAPBOX_ERROR
 	}
 
 	durations := response.Durations
@@ -151,7 +150,7 @@ func (s *Services) DispatchDelivery(data shared.DeliveryRequest, delivery *model
 		return e[i].Duration < e[j].Duration
 	})
 
-	delivery, err = s.repo.FindDelivery(delivery.ID)
+	delivery, err = s.repo.FindDelivery(delivery.ID, true)
 	if err != nil {
 		return nil
 	}
@@ -175,7 +174,6 @@ electronLoop:
 	for _, electron := range e {
 		conn := s.hub.GetClient(fmt.Sprintf("electron_%s", electron.Electron.Id))
 		if conn == nil {
-			log.Printf("Electron %s has disconnected from server", electron.Electron.Id)
 			continue
 		}
 
@@ -184,15 +182,18 @@ electronLoop:
 		select {
 		case <-ticker.C:
 			// move to next electron in queue
-		case <-conn.AcceptDeliveryPipeline:
+		case <-conn.DeliveryAcceptanceAck:
 			// delivery has been accepted, exit
 			ticker.Stop()
+			foundElectronForOrder = true
 			break electronLoop
 		}
 
 	}
 
-	fmt.Println("HANLDED")
-	return nil
+	if !foundElectronForOrder {
+		goto dispatchLogic
+	}
 
+	return nil
 }
