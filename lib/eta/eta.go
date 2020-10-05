@@ -1,66 +1,71 @@
 package eta
 
 import (
+	"context"
 	"log"
-	"os"
+	"time"
 
-	mapbox "github.com/ryankurte/go-mapbox/lib"
-	"github.com/ryankurte/go-mapbox/lib/base"
-	directionsmatrix "github.com/ryankurte/go-mapbox/lib/directions_matrix"
+	mapbox "github.com/airspacetechnologies/go-mapbox"
+	"github.com/gwuah/api/shared"
 )
 
 type Eta struct {
 	token  string
-	mapBox *mapbox.Mapbox
+	mapBox *mapbox.Client
 }
 
-func New(token string) *Eta {
-	if token == "" {
+func New(APIKey string) *Eta {
+	if APIKey == "" {
 		log.Fatal("mapbox token required")
 	}
-	mapBox, err := mapbox.NewMapbox(token)
+
+	mapboxClient, err := mapbox.NewClient(&mapbox.MapboxConfig{
+		Timeout: 30 * time.Second,
+		APIKey:  APIKey,
+	})
 
 	if err != nil {
 		log.Fatal("failed to initialize mapbox", err)
 	}
 
 	return &Eta{
-		token:  token,
-		mapBox: mapBox,
+		token:  APIKey,
+		mapBox: mapboxClient,
 	}
 }
 
-func (e *Eta) _getDurationFromOrigin(origin base.Location, destinations []base.Location) *directionsmatrix.DirectionMatrixResponse {
+func transformCoordinates(coords []shared.Coord) mapbox.Coordinates {
+	transformed := mapbox.Coordinates{}
 
-	var opts directionsmatrix.RequestOpts
-	opts.SetSources([]string{"0"})
-	opts.SetDestinations([]string{"all"})
-
-	destinations = append([]base.Location{origin}, destinations...)
-
-	response, err := e.mapBox.DirectionsMatrix.GetDirectionsMatrix(destinations, directionsmatrix.RoutingDriving, &opts)
-	if err != nil {
-		log.Println("failed to get ETA", err)
+	for _, value := range coords {
+		transformed = append(transformed, mapbox.Coordinate{
+			Lat: value.Latitude,
+			Lng: value.Longitude,
+		})
 	}
 
-	return response
-
+	return transformed
 }
 
-func (e *Eta) test_getDurationFromOrigin(origin base.Location, destinations []base.Location) *directionsmatrix.DirectionMatrixResponse {
+func (eta *Eta) GetDistanceFromOriginsToDestination(origins []shared.Coord, destination shared.Coord) (*mapbox.DirectionsMatrixResponse, error) {
+	coords := mapbox.Coordinates{
+		mapbox.Coordinate{
+			Lat: destination.Latitude,
+			Lng: destination.Longitude,
+		},
+	}
+	coords = append(coords, transformCoordinates(origins)...)
 
-	return &directionsmatrix.DirectionMatrixResponse{
-		Code:      "Ok",
-		Durations: [][]float64{{0, 10, 20, 21, 44}},
+	request := &mapbox.DirectionsMatrixRequest{
+		Profile:       mapbox.ProfileDrivingTraffic,
+		Coordinates:   coords,
+		Annotations:   mapbox.Annotations{mapbox.AnnotationDistance, mapbox.AnnotationDuration},
+		Destinations:  mapbox.Destinations{0},
+		FallbackSpeed: 60,
 	}
 
-}
+	response, err := eta.mapBox.DirectionsMatrix(context.TODO(), request)
 
-func (e *Eta) GetDurationFromOrigin(origin base.Location, destinations []base.Location) *directionsmatrix.DirectionMatrixResponse {
-	if os.Getenv("MODE") == "testing" {
-		return e.test_getDurationFromOrigin(origin, destinations)
-	}
-
-	return e._getDurationFromOrigin(origin, destinations)
+	return response, err
 
 }

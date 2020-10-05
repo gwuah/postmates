@@ -12,7 +12,6 @@ import (
 	"github.com/gwuah/api/lib/ws"
 	"github.com/gwuah/api/shared"
 	"github.com/gwuah/api/utils/geo"
-	"github.com/ryankurte/go-mapbox/lib/base"
 )
 
 func (s *Services) IndexElectronLocation(param shared.UserLocationUpdate) (*shared.User, error) {
@@ -117,19 +116,24 @@ dispatchLogic:
 		return err
 	}
 
-	coords := []base.Location{}
+	coords := []shared.Coord{}
 
 	for _, electron := range electrons {
-		coords = append(coords, base.Location{
+		coords = append(coords, shared.Coord{
 			Latitude:  electron.Latitude,
 			Longitude: electron.Longitude,
 		})
 	}
 
-	response := s.eta.GetDurationFromOrigin(base.Location{
+	response, err := s.eta.GetDistanceFromOriginsToDestination(coords, shared.Coord{
 		Latitude:  data.Origin.Latitude,
 		Longitude: data.Origin.Longitude,
-	}, coords)
+	})
+
+	if err != nil {
+		log.Println("mapbox request failed")
+		return err
+	}
 
 	if response.Code != "Ok" {
 		return shared.MAPBOX_ERROR
@@ -138,11 +142,11 @@ dispatchLogic:
 	durations := response.Durations
 	var e []shared.ElectronWithEta
 
-	for key, durationFromOrigin := range durations[0][1:] {
+	for key, duration := range durations[1:] {
 		electron := electrons[key]
 		e = append(e, shared.ElectronWithEta{
 			Electron: electron,
-			Duration: durationFromOrigin,
+			Duration: *duration[0],
 		})
 	}
 
