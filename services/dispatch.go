@@ -14,7 +14,44 @@ import (
 	"github.com/gwuah/api/utils/geo"
 )
 
-func (s *Services) IndexElectronLocation(param shared.UserLocationUpdate) (*shared.User, error) {
+func (s *Services) HandleLocationUpdate(params shared.UserLocationUpdate) error {
+
+	switch params.State {
+	case models.AwaitingDispatch:
+		_, err := s.indexElectronLocation(params)
+		return err
+	case models.Dispatched, models.OnTrip:
+		_, err := s.indexElectronLocation(params)
+		if err != nil {
+			return err
+		}
+		_, err = s.repo.CreateTripPoint(params)
+		if err != nil {
+			return err
+		}
+		err = s.relayCoordsToCustomer(params)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (s *Services) relayCoordsToCustomer(params shared.UserLocationUpdate) error {
+	delivery, err := s.repo.FindDelivery(params.DeliveryId, false)
+	if err != nil {
+		return err
+	}
+
+	customerConn := s.hub.GetClient(fmt.Sprintf("customer_%d", delivery.CustomerID))
+
+	customerConn.SendMessage([]byte(""))
+
+	return nil
+}
+
+func (s *Services) indexElectronLocation(param shared.UserLocationUpdate) (*shared.User, error) {
 	newIndex := geo.CoordToIndex(param.Coord)
 
 	electron, err := s.repo.GetElectronFromRedis(param.Id)
@@ -159,19 +196,6 @@ dispatchLogic:
 		return nil
 	}
 
-	d := shared.NewDelivery{
-		Meta: shared.Meta{
-			Type: "NewDelivery",
-		},
-		Delivery: delivery,
-	}
-
-	convertedValue, err := json.Marshal(d)
-
-	if err != nil {
-		return nil
-	}
-
 	ticker := time.NewTicker(5 * time.Second)
 
 electronLoop:
@@ -181,7 +205,28 @@ electronLoop:
 			continue
 		}
 
-		conn.SendMessage(convertedValue)
+		duration, distance, err := s.getDistanceAndDuration(shared.Coord{
+			Latitude:  electron.Electron.Latitude,
+			Longitude: electron.Electron.Longitude,
+		}, shared.Coord{
+			Latitude:  delivery.OriginLatitude,
+			Longitude: delivery.OriginLongitude,
+		})
+
+		convertedDeliveryRequest, err := json.Marshal(shared.NewDelivery{
+			Meta: shared.Meta{
+				Type: "NewDelivery",
+			},
+			Delivery:         delivery,
+			DistanceToPickup: float64(distance),
+			DurationToPickup: float64(duration),
+		})
+
+		if err != nil {
+			return nil
+		}
+
+		conn.SendMessage(convertedDeliveryRequest)
 
 		select {
 		case <-ticker.C:

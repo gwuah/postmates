@@ -27,7 +27,9 @@ type User struct {
 }
 
 type UserLocationUpdate struct {
-	Id string `json:"id"`
+	Id         string       `json:"id"`
+	State      models.State `json:"state"`
+	DeliveryId uint         `json:"deliveryId"`
 	Coord
 }
 
@@ -52,8 +54,10 @@ type GetClosestElectronsRequest struct {
 }
 
 type NewDelivery struct {
-	Meta     Meta             `json:"meta"`
-	Delivery *models.Delivery `json:"delivery"`
+	Meta             Meta             `json:"meta"`
+	Delivery         *models.Delivery `json:"delivery"`
+	DistanceToPickup float64          `json:"distanceToPickup"`
+	DurationToPickup float64          `json:"durationToPickup"`
 }
 
 type AcceptDelivery struct {
@@ -67,8 +71,17 @@ type ElectronWithEta struct {
 }
 
 type DeliveryAcceptedPayload struct {
-	Meta               Meta            `json:"meta"`
-	Electron           models.Electron `json:"electron"`
-	Delivery           models.Delivery `json:"delivery"`
-	DurationFromPickup float64         `json:"durationFromPickup"`
+	Meta             Meta            `json:"meta"`
+	Electron         models.Electron `json:"electron"`
+	Delivery         models.Delivery `json:"delivery"`
+	DistanceToPickup float64         `json:"distanceToPickup"`
+	DurationToPickup float64         `json:"durationToPickup"`
 }
+
+// type DeliveryAcceptedPayload struct {
+// 	Meta             Meta            `json:"meta"`
+// 	Electron         models.Electron `json:"electron"`
+// 	Delivery         models.Delivery `json:"delivery"`
+// 	DistanceToPickup float64         `json:"distanceToPickup"`
+// 	DurationToPickup float64         `json:"durationToPickup"`
+// }

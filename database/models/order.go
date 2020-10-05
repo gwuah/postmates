@@ -6,5 +6,5 @@ type Order struct {
 	ElectronID uint     `json:"electronId"`
 	Electron   Electron `json:"electron"`
 	Completed  bool     `json:"completed"`
-	Status     Status   `json:"status"`
+	State      State    `json:"state"`
 }

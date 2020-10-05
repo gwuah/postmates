@@ -41,7 +41,14 @@ func main() {
 		log.Fatal("failed To Connect To Postgresql database")
 	}
 
-	err = postgres.SetupDatabase(db, &models.Customer{}, &models.Delivery{}, &models.Electron{}, &models.Order{}, &models.Vehicle{})
+	err = postgres.SetupDatabase(db,
+		&models.Customer{},
+		&models.Delivery{},
+		&models.Electron{},
+		&models.Order{},
+		&models.Vehicle{},
+		&models.TripPoint{},
+	)
 
 	if err != nil {
 		log.Fatal("failed To Setup Tables")

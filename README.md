@@ -22,7 +22,7 @@ go build main.go
 ./main
 ```
 
-# Delivery Status Types
+# Delivery State Types
 
 - pending - Delivery has been accepted but does not yet have a electron assigned
 - pending_pickup - Electron is assigned and is en route to pick up the items

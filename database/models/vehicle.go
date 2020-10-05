@@ -15,6 +15,6 @@ type Vehicle struct {
 	Type         VehicleType `json:"vehicleType"`
 	ElectronID   uint        `json:"electronId"`
 
-	Status Status `json:"status"`
-	Active bool   `json:"active" gorm:"default=false"`
+	State  State `json:"state"`
+	Active bool  `json:"active" gorm:"default=false"`
 }

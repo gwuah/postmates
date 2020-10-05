@@ -15,7 +15,7 @@ func (r *Repository) CreateDelivery(data shared.DeliveryRequest) (*models.Delive
 		Notes:                data.Notes,
 		ProductID:            data.ProductId,
 		CustomerID:           data.CustomerID,
-		Status:               models.Pending,
+		State:                models.Pending,
 	}
 
 	if err := r.DB.Create(&delivery).Error; err != nil {

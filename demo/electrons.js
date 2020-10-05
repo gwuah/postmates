@@ -82,13 +82,16 @@ function electron(id) {
       ws.send(
         JSON.stringify({
           meta: {
-            type: "IndexElectronLocation",
+            type: "LocationUpdate",
           },
           id: id,
           latitude: coord.latitude,
           longitude: coord.longitude,
+          state: "on_trip",
+          deliveryId: 50,
         })
       );
+      // console.log(`ID ${id}, location indexed`);
     }, 2000);
   };
 }

@@ -11,7 +11,7 @@ function connect(id) {
       ws.send(
         JSON.stringify({
           meta: {
-            type: "IndexElectronLocation",
+            type: "LocationUpdate",
           },
           id: id,
           latitude: 5.680814496321185,

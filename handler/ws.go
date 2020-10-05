@@ -1,12 +1,14 @@
 package handler
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/gwuah/api/lib/ws"
+	"github.com/gwuah/api/shared"
 )
 
 var upgrader = websocket.Upgrader{
@@ -15,12 +17,12 @@ var upgrader = websocket.Upgrader{
 }
 
 var MESSAGE_TYPES = map[string]string{
-	"DeliveryRequest":       "DeliveryRequest",
-	"CancelDelivery":        "CancelDelivery",
-	"GetEstimate":           "GetEstimate",
-	"IndexElectronLocation": "IndexElectronLocation",
-	"GetClosestElectrons":   "GetClosestElectrons",
-	"AcceptDelivery":        "AcceptDelivery",
+	"DeliveryRequest":     "DeliveryRequest",
+	"CancelDelivery":      "CancelDelivery",
+	"GetEstimate":         "GetEstimate",
+	"LocationUpdate":      "LocationUpdate",
+	"GetClosestElectrons": "GetClosestElectrons",
+	"AcceptDelivery":      "AcceptDelivery",
 }
 
 func (h *Handler) handleConnection(entity string) func(c *gin.Context) {
@@ -60,8 +62,8 @@ func (h *Handler) processIncomingMessage(message []byte, ws *ws.WSConnection) {
 		h.processDeliveryRequest(message, ws)
 	case MESSAGE_TYPES["CancelDelivery"]:
 		h.handleDeliveryCancellation(message, ws)
-	case MESSAGE_TYPES["IndexElectronLocation"]:
-		h.handleElectronLocationUpdate(message, ws)
+	case MESSAGE_TYPES["LocationUpdate"]:
+		h.handleLocationUpdate(message, ws)
 	case MESSAGE_TYPES["GetClosestElectrons"]:
 		h.handleGetClosestElectrons(message, ws)
 	case MESSAGE_TYPES["AcceptDelivery"]:
@@ -98,5 +100,19 @@ func (h *Handler) getTypeOfMessage(message []byte) []byte {
 	}
 
 	return head[1 : len(head)-1]
+}
 
+func (h *Handler) handleLocationUpdate(message []byte, ws *ws.WSConnection) {
+	var data shared.UserLocationUpdate
+	err := json.Unmarshal(message, &data)
+	if err != nil {
+		log.Println("failed to parse message", err)
+		return
+	}
+
+	err = h.Services.HandleLocationUpdate(data)
+	if err != nil {
+		log.Println("failed to handle location update", err)
+		return
+	}
 }

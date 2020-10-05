@@ -31,14 +31,20 @@ func (s *Services) AcceptDelivery(data shared.AcceptDelivery, electronWS *ws.WSC
 		return err
 	}
 
-	eta, err := s.getElectronEta(*delivery, *electronFromRedis)
+	duration, distance, err := s.getDistanceAndDuration(shared.Coord{
+		Latitude:  electronFromRedis.Latitude,
+		Longitude: electronFromRedis.Longitude,
+	}, shared.Coord{
+		Latitude:  delivery.OriginLatitude,
+		Longitude: delivery.OriginLongitude,
+	})
 	if err != nil {
 		log.Printf("failed to get electron %s ETA", electronWS.Id)
 		return nil
 	}
 
 	_, err = s.repo.UpdateDelivery(data.DeliveryId, map[string]interface{}{
-		"Status":     models.PendingPickup,
+		"State":      models.PendingPickup,
 		"ElectronID": electronWS.Id,
 	})
 	if err != nil {
@@ -46,7 +52,7 @@ func (s *Services) AcceptDelivery(data shared.AcceptDelivery, electronWS *ws.WSC
 	}
 
 	_, err = s.repo.UpdateElectron(uint(utils.ConvertToUint64(electronWS.Id)), map[string]interface{}{
-		"Status": models.Dispatched,
+		"State": models.Dispatched,
 	})
 	if err != nil {
 		return err
@@ -69,14 +75,17 @@ func (s *Services) AcceptDelivery(data shared.AcceptDelivery, electronWS *ws.WSC
 	customer := s.hub.GetClient(fmt.Sprintf("customer_%d", delivery.CustomerID))
 	if customer != nil {
 		go func() {
+			electron.Latitude = electronFromRedis.Latitude
+			electron.Longitude = electronFromRedis.Longitude
 
 			acceptanceDataStruct := shared.DeliveryAcceptedPayload{
 				Meta: shared.Meta{
 					Type: "DeliveryAccepted",
 				},
-				Electron:           *electron,
-				Delivery:           *delivery,
-				DurationFromPickup: eta,
+				Electron:         *electron,
+				Delivery:         *delivery,
+				DistanceToPickup: float64(distance),
+				DurationToPickup: float64(duration),
 			}
 
 			acceptanceData, err := json.Marshal(acceptanceDataStruct)
@@ -92,23 +101,4 @@ func (s *Services) AcceptDelivery(data shared.AcceptDelivery, electronWS *ws.WSC
 
 func (s *Services) CancelDelivery(data shared.CancelDeliveryRequest) bool {
 	return true
-}
-
-func (s *Services) getElectronEta(data models.Delivery, electron shared.User) (float64, error) {
-
-	response, err := s.eta.GetDistanceFromOriginsToDestination([]shared.Coord{electron.Coord}, shared.Coord{
-		Latitude:  data.OriginLatitude,
-		Longitude: data.OriginLongitude,
-	})
-
-	if response.Code != "Ok" {
-		return 0, shared.MAPBOX_ERROR
-	}
-
-	if err != nil {
-		return 0, err
-	}
-
-	return *response.Durations[1][0], nil
-
 }
