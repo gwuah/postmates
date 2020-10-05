@@ -52,7 +52,7 @@ func New(DB *gorm.DB, jwt jwt.Service, sec *secure.Service, redisDB *redis.Clien
 func (h *Handler) Register(v1 *gin.RouterGroup) {
 
 	v1.GET("/customer/realtime/:id", h.handleConnection("customer"))
-	v1.GET("/electron/realtime/:id", h.handleConnection("electron"))
+	v1.GET("/courier/realtime/:id", h.handleConnection("courier"))
 
 	v1.POST("/signup", h.Signup)
 	v1.POST("/login", h.Login)

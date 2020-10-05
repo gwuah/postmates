@@ -13,7 +13,7 @@ type Vehicle struct {
 	RegNumber    string      `gorm:"not null;unique" json:"regNumber"`
 	VehicleModel string      `json:"vehicleModel"`
 	Type         VehicleType `json:"vehicleType"`
-	ElectronID   uint        `json:"electronId"`
+	CourierID    uint        `json:"courierId"`
 
 	State  State `json:"state"`
 	Active bool  `json:"active" gorm:"default=false"`

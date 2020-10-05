@@ -19,10 +19,10 @@ func (s *Services) CreateDelivery(data shared.DeliveryRequest) (*models.Delivery
 	return delivery, nil
 }
 
-func (s *Services) AcceptDelivery(data shared.AcceptDelivery, electronWS *ws.WSConnection) error {
-	electronFromRedis, err := s.repo.GetElectronFromRedis(electronWS.Id)
+func (s *Services) AcceptDelivery(data shared.AcceptDelivery, courierWS *ws.WSConnection) error {
+	courierFromRedis, err := s.repo.GetCourierFromRedis(courierWS.Id)
 	if err != nil {
-		log.Printf("failed to retrieve electron %s from redis", electronWS.Id)
+		log.Printf("failed to retrieve courier %s from redis", courierWS.Id)
 		return nil
 	}
 
@@ -32,26 +32,26 @@ func (s *Services) AcceptDelivery(data shared.AcceptDelivery, electronWS *ws.WSC
 	}
 
 	duration, distance, err := s.getDistanceAndDuration(shared.Coord{
-		Latitude:  electronFromRedis.Latitude,
-		Longitude: electronFromRedis.Longitude,
+		Latitude:  courierFromRedis.Latitude,
+		Longitude: courierFromRedis.Longitude,
 	}, shared.Coord{
 		Latitude:  delivery.OriginLatitude,
 		Longitude: delivery.OriginLongitude,
 	})
 	if err != nil {
-		log.Printf("failed to get electron %s ETA", electronWS.Id)
+		log.Printf("failed to get courier %s ETA", courierWS.Id)
 		return nil
 	}
 
 	_, err = s.repo.UpdateDelivery(data.DeliveryId, map[string]interface{}{
-		"State":      models.PendingPickup,
-		"ElectronID": electronWS.Id,
+		"State":     models.PendingPickup,
+		"CourierID": courierWS.Id,
 	})
 	if err != nil {
 		return err
 	}
 
-	_, err = s.repo.UpdateElectron(uint(utils.ConvertToUint64(electronWS.Id)), map[string]interface{}{
+	_, err = s.repo.UpdateCourier(uint(utils.ConvertToUint64(courierWS.Id)), map[string]interface{}{
 		"State": models.Dispatched,
 	})
 	if err != nil {
@@ -59,7 +59,7 @@ func (s *Services) AcceptDelivery(data shared.AcceptDelivery, electronWS *ws.WSC
 	}
 
 	go func() {
-		electronWS.AckDeliveryAcceptance(true)
+		courierWS.AckDeliveryAcceptance(true)
 	}()
 
 	delivery, err = s.repo.FindDelivery(data.DeliveryId, true)
@@ -67,7 +67,7 @@ func (s *Services) AcceptDelivery(data shared.AcceptDelivery, electronWS *ws.WSC
 		return err
 	}
 
-	electron, err := s.repo.FindElectron(*delivery.ElectronID)
+	courier, err := s.repo.FindCourier(*delivery.CourierID)
 	if err != nil {
 		return err
 	}
@@ -75,14 +75,14 @@ func (s *Services) AcceptDelivery(data shared.AcceptDelivery, electronWS *ws.WSC
 	customer := s.hub.GetClient(fmt.Sprintf("customer_%d", delivery.CustomerID))
 	if customer != nil {
 		go func() {
-			electron.Latitude = electronFromRedis.Latitude
-			electron.Longitude = electronFromRedis.Longitude
+			courier.Latitude = courierFromRedis.Latitude
+			courier.Longitude = courierFromRedis.Longitude
 
 			acceptanceDataStruct := shared.DeliveryAcceptedPayload{
 				Meta: shared.Meta{
 					Type: "DeliveryAccepted",
 				},
-				Electron:         *electron,
+				Courier:          *courier,
 				Delivery:         *delivery,
 				DistanceToPickup: float64(distance),
 				DurationToPickup: float64(duration),

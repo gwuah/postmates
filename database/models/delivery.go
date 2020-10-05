@@ -14,7 +14,7 @@ const (
 	Delivered             = "delivered"
 	Cancelled             = "cancelled"
 
-	// electron state types
+	// courier state types
 	AwaitingDispatch = "awaiting_dispatch"
 	Dispatched       = "dispatched"
 	OnTrip           = "on_trip"
@@ -44,7 +44,7 @@ type Delivery struct {
 	Customer             Customer     `json:"customer"`
 	ProductID            uint         `json:"productId"`
 	Product              Product      `json:"product"`
-	ElectronID           *uint        `json:"electronId,omitempty"`
-	Electron             *Electron    `json:"electron,omitempty"`
+	CourierID            *uint        `json:"courierId,omitempty"`
+	Courier              *Courier     `json:"courier,omitempty"`
 	TripPoints           []*TripPoint `json:"tripPoints,omitempty"`
 }

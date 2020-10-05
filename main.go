@@ -44,7 +44,7 @@ func main() {
 	err = postgres.SetupDatabase(db,
 		&models.Customer{},
 		&models.Delivery{},
-		&models.Electron{},
+		&models.Courier{},
 		&models.Order{},
 		&models.Vehicle{},
 		&models.TripPoint{},
@@ -56,7 +56,7 @@ func main() {
 
 	database.RunSeeds(db, []database.SeedFn{
 		database.SeedProducts,
-		database.SeedElectrons,
+		database.SeedCouriers,
 		database.SeedCustomers,
 		database.SeedVehicles,
 	})

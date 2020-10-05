@@ -23,8 +23,8 @@ const defaultCabPositions = [
   },
 ];
 
-// function electron(id) {
-//   let ws = new WebSocket(`ws://localhost:8080/v1/electron/realtime/${id}`);
+// function courier(id) {
+//   let ws = new WebSocket(`ws://localhost:8080/v1/courier/realtime/${id}`);
 //   ws.on("message", function (data) {
 //     console.log(`ID(${id}) >>> `, data);
 //   });
@@ -38,7 +38,7 @@ const defaultCabPositions = [
 //       ws.send(
 //         JSON.stringify({
 //           meta: {
-//             type: "IndexElectronLocation",
+//             type: "IndexCourierLocation",
 //           },
 //           id: id,
 //           latitude: coord.latitude,
@@ -49,8 +49,8 @@ const defaultCabPositions = [
 //   };
 // }
 
-function electron(id) {
-  let ws = new WebSocket(`ws://localhost:8080/v1/electron/realtime/${id}`);
+function courier(id) {
+  let ws = new WebSocket(`ws://localhost:8080/v1/courier/realtime/${id}`);
   ws.on("message", function (data) {
     parsed = JSON.parse(data);
     // console.log(JSON.stringify(parsed, null, 4));
@@ -98,13 +98,13 @@ function electron(id) {
 
 function main() {
   setTimeout(() => {
-    electron("1")(defaultCabPositions[0]);
+    courier("1")(defaultCabPositions[0]);
   }, 1000);
   setTimeout(() => {
-    electron("2")(defaultCabPositions[1]);
+    courier("2")(defaultCabPositions[1]);
   }, 2000);
   setTimeout(() => {
-    electron("3")(defaultCabPositions[2]);
+    courier("3")(defaultCabPositions[2]);
   }, 3000);
 }
 

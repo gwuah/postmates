@@ -1,6 +1,6 @@
 package models
 
-type Electron struct {
+type Courier struct {
 	Model
 	FirstName  string   `json:"firstName"`
 	LastName   string   `json:"lastName"`

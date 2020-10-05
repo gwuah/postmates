@@ -9,8 +9,8 @@ import (
 	"github.com/gwuah/api/shared"
 )
 
-type ElectronWithEta struct {
-	Electron *shared.User
+type CourierWithEta struct {
+	Courier  *shared.User
 	Duration float64
 }
 

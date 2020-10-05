@@ -47,7 +47,7 @@ type CancelDeliveryRequest struct {
 	TripId uint `json:"tripId"`
 }
 
-type GetClosestElectronsRequest struct {
+type GetClosestCouriersRequest struct {
 	Meta   Meta   `json:"meta"`
 	Id     string `json:"id"`
 	Origin Coord  `json:"origin"`
@@ -65,14 +65,14 @@ type AcceptDelivery struct {
 	DeliveryId uint `json:"deliveryId"`
 }
 
-type ElectronWithEta struct {
-	Electron *User
+type CourierWithEta struct {
+	Courier  *User
 	Duration float64
 }
 
 type DeliveryAcceptedPayload struct {
 	Meta             Meta            `json:"meta"`
-	Electron         models.Electron `json:"electron"`
+	Courier          models.Courier  `json:"courier"`
 	Delivery         models.Delivery `json:"delivery"`
 	DistanceToPickup float64         `json:"distanceToPickup"`
 	DurationToPickup float64         `json:"durationToPickup"`
@@ -80,7 +80,7 @@ type DeliveryAcceptedPayload struct {
 
 // type DeliveryAcceptedPayload struct {
 // 	Meta             Meta            `json:"meta"`
-// 	Electron         models.Electron `json:"electron"`
+// 	Courier         models.Courier `json:"courier"`
 // 	Delivery         models.Delivery `json:"delivery"`
 // 	DistanceToPickup float64         `json:"distanceToPickup"`
 // 	DurationToPickup float64         `json:"durationToPickup"`

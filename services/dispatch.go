@@ -18,10 +18,10 @@ func (s *Services) HandleLocationUpdate(params shared.UserLocationUpdate) error 
 
 	switch params.State {
 	case models.AwaitingDispatch:
-		_, err := s.indexElectronLocation(params)
+		_, err := s.indexCourierLocation(params)
 		return err
 	case models.Dispatched, models.OnTrip:
-		_, err := s.indexElectronLocation(params)
+		_, err := s.indexCourierLocation(params)
 		if err != nil {
 			return err
 		}
@@ -51,13 +51,13 @@ func (s *Services) relayCoordsToCustomer(params shared.UserLocationUpdate) error
 	return nil
 }
 
-func (s *Services) indexElectronLocation(param shared.UserLocationUpdate) (*shared.User, error) {
+func (s *Services) indexCourierLocation(param shared.UserLocationUpdate) (*shared.User, error) {
 	newIndex := geo.CoordToIndex(param.Coord)
 
-	electron, err := s.repo.GetElectronFromRedis(param.Id)
+	courier, err := s.repo.GetCourierFromRedis(param.Id)
 
 	if err == redis.Nil {
-		electron = &shared.User{
+		courier = &shared.User{
 			Id: param.Id,
 		}
 	}
@@ -66,77 +66,77 @@ func (s *Services) indexElectronLocation(param shared.UserLocationUpdate) (*shar
 		return nil, err
 	}
 
-	oldIndex := electron.LastKnownIndex
+	oldIndex := courier.LastKnownIndex
 
-	electron.Coord = param.Coord
-	electron.LastKnownIndex = newIndex
+	courier.Coord = param.Coord
+	courier.LastKnownIndex = newIndex
 
-	err = s.repo.InsertElectronIntoRedis(electron)
+	err = s.repo.InsertCourierIntoRedis(courier)
 
 	if err != nil {
 		return nil, err
 	}
 
 	if oldIndex != newIndex {
-		err = s.repo.RemoveElectronFromIndex(oldIndex, electron)
+		err = s.repo.RemoveCourierFromIndex(oldIndex, courier)
 		if err != nil {
 			return nil, err
 		}
 
-		err = s.repo.InsertElectronIntoIndex(newIndex, electron)
+		err = s.repo.InsertCourierIntoIndex(newIndex, courier)
 		if err != nil {
 			return nil, err
 		}
 
 	}
 
-	return electron, nil
+	return courier, nil
 }
 
-func (s *Services) GetClosestElectrons(coord shared.Coord, steps int) []string {
+func (s *Services) GetClosestCouriers(coord shared.Coord, steps int) []string {
 
 	rings := geo.GetRingsFromOrigin(coord, steps)
 
-	electronsIds := []string{}
+	couriersIds := []string{}
 
 	for _, index := range rings {
-		ids, err := s.repo.GetElectronsInIndex(index)
+		ids, err := s.repo.GetCouriersInIndex(index)
 
 		if err != nil {
-			log.Printf("failed to load electrons in electron_index %d", index)
+			log.Printf("failed to load couriers in courier_index %d", index)
 			continue
 		}
 
 		if len(ids) > 0 {
-			electronsIds = append(electronsIds, ids...)
+			couriersIds = append(couriersIds, ids...)
 		}
 	}
 
-	return electronsIds
+	return couriersIds
 
 }
 
-func (s *Services) GetAllElectrons(ids []string) ([]*shared.User, error) {
-	electrons := []*shared.User{}
+func (s *Services) GetAllCouriers(ids []string) ([]*shared.User, error) {
+	couriers := []*shared.User{}
 
 	for _, id := range ids {
-		electron, err := s.repo.GetElectronFromRedis(id)
+		courier, err := s.repo.GetCourierFromRedis(id)
 		if err != nil {
 			log.Println("failed To Load User", err)
 		}
-		electrons = append(electrons, electron)
+		couriers = append(couriers, courier)
 	}
 
-	return electrons, nil
+	return couriers, nil
 }
 
 func (s *Services) DispatchDelivery(data shared.DeliveryRequest, delivery *models.Delivery, ws *ws.WSConnection) error {
 
-	foundElectronForOrder := false
+	foundCourierForOrder := false
 
 dispatchLogic:
 
-	ids := s.GetClosestElectrons(shared.Coord{
+	ids := s.GetClosestCouriers(shared.Coord{
 		Latitude:  delivery.OriginLatitude,
 		Longitude: delivery.OriginLongitude,
 	}, 2)
@@ -147,7 +147,7 @@ dispatchLogic:
 		return nil
 	}
 
-	electrons, err := s.GetAllElectrons(ids)
+	couriers, err := s.GetAllCouriers(ids)
 
 	if err != nil {
 		return err
@@ -155,10 +155,10 @@ dispatchLogic:
 
 	coords := []shared.Coord{}
 
-	for _, electron := range electrons {
+	for _, courier := range couriers {
 		coords = append(coords, shared.Coord{
-			Latitude:  electron.Latitude,
-			Longitude: electron.Longitude,
+			Latitude:  courier.Latitude,
+			Longitude: courier.Longitude,
 		})
 	}
 
@@ -177,12 +177,12 @@ dispatchLogic:
 	}
 
 	durations := response.Durations
-	var e []shared.ElectronWithEta
+	var e []shared.CourierWithEta
 
 	for key, duration := range durations[1:] {
-		electron := electrons[key]
-		e = append(e, shared.ElectronWithEta{
-			Electron: electron,
+		courier := couriers[key]
+		e = append(e, shared.CourierWithEta{
+			Courier:  courier,
 			Duration: *duration[0],
 		})
 	}
@@ -198,16 +198,16 @@ dispatchLogic:
 
 	ticker := time.NewTicker(5 * time.Second)
 
-electronLoop:
-	for _, electron := range e {
-		conn := s.hub.GetClient(fmt.Sprintf("electron_%s", electron.Electron.Id))
+courierLoop:
+	for _, courier := range e {
+		conn := s.hub.GetClient(fmt.Sprintf("courier_%s", courier.Courier.Id))
 		if conn == nil {
 			continue
 		}
 
 		duration, distance, err := s.getDistanceAndDuration(shared.Coord{
-			Latitude:  electron.Electron.Latitude,
-			Longitude: electron.Electron.Longitude,
+			Latitude:  courier.Courier.Latitude,
+			Longitude: courier.Courier.Longitude,
 		}, shared.Coord{
 			Latitude:  delivery.OriginLatitude,
 			Longitude: delivery.OriginLongitude,
@@ -230,17 +230,17 @@ electronLoop:
 
 		select {
 		case <-ticker.C:
-			// move to next electron in queue
+			// move to next courier in queue
 		case <-conn.DeliveryAcceptanceAck:
 			// delivery has been accepted, exit
 			ticker.Stop()
-			foundElectronForOrder = true
-			break electronLoop
+			foundCourierForOrder = true
+			break courierLoop
 		}
 
 	}
 
-	if !foundElectronForOrder {
+	if !foundCourierForOrder {
 		goto dispatchLogic
 	}
 
