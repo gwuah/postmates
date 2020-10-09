@@ -44,9 +44,39 @@ func (s *Services) relayCoordsToCustomer(params shared.UserLocationUpdate) error
 		return err
 	}
 
-	customerConn := s.hub.GetClient(fmt.Sprintf("customer_%d", delivery.CustomerID))
+	redisCourier, err := s.repo.GetCourierFromRedis(string(params.Id))
+	if err != nil {
+		return err
+	}
 
-	customerConn.SendMessage([]byte(""))
+	duration, distance, err := s.eta.GetDistanceAndDuration(shared.Coord{
+		Latitude:  redisCourier.Latitude,
+		Longitude: redisCourier.Longitude,
+	}, shared.Coord{
+		Latitude:  delivery.OriginLatitude,
+		Longitude: delivery.OriginLongitude,
+	})
+
+	if err != nil {
+		return nil
+	}
+
+	data, err := json.Marshal(shared.CourierLocation{
+		Meta: shared.Meta{
+			Type: "CourierLocationUpdate",
+		},
+		Coord:            redisCourier.Coord,
+		DistanceToPickup: float64(distance),
+		DurationToPickup: float64(duration),
+	})
+
+	if err != nil {
+		return nil
+	}
+
+	if customerConn := s.hub.GetClient(fmt.Sprintf("customer_%d", delivery.CustomerID)); customerConn != nil {
+		customerConn.SendMessage(data)
+	}
 
 	return nil
 }
@@ -116,20 +146,6 @@ func (s *Services) GetClosestCouriers(coord shared.Coord, steps int) []string {
 
 }
 
-func (s *Services) GetAllCouriers(ids []string) ([]*shared.User, error) {
-	couriers := []*shared.User{}
-
-	for _, id := range ids {
-		courier, err := s.repo.GetCourierFromRedis(id)
-		if err != nil {
-			log.Println("failed To Load User", err)
-		}
-		couriers = append(couriers, courier)
-	}
-
-	return couriers, nil
-}
-
 func (s *Services) DispatchDelivery(data shared.DeliveryRequest, delivery *models.Delivery, ws *ws.WSConnection) error {
 
 	foundCourierForOrder := false
@@ -147,7 +163,7 @@ dispatchLogic:
 		return nil
 	}
 
-	couriers, err := s.GetAllCouriers(ids)
+	couriers, err := s.repo.GetAllCouriers(ids)
 
 	if err != nil {
 		return err
@@ -162,6 +178,23 @@ dispatchLogic:
 		})
 	}
 
+	if s.hub.GetSize() == 0 {
+		res, err := json.Marshal(shared.NoCourierAvailable{
+			Meta: shared.Meta{
+				Type: "NoCourierAvailable",
+			},
+			Message: "there are no couriers available",
+		})
+
+		if err != nil {
+			return err
+		}
+
+		ws.SendMessage(res)
+
+		return nil
+	}
+
 	response, err := s.eta.GetDistanceFromOriginsToDestination(coords, shared.Coord{
 		Latitude:  data.Origin.Latitude,
 		Longitude: data.Origin.Longitude,
@@ -173,6 +206,7 @@ dispatchLogic:
 	}
 
 	if response.Code != "Ok" {
+		log.Println("code check failed ...")
 		return shared.MAPBOX_ERROR
 	}
 
@@ -205,7 +239,7 @@ courierLoop:
 			continue
 		}
 
-		duration, distance, err := s.getDistanceAndDuration(shared.Coord{
+		duration, distance, err := s.eta.GetDistanceAndDuration(shared.Coord{
 			Latitude:  courier.Courier.Latitude,
 			Longitude: courier.Courier.Longitude,
 		}, shared.Coord{

@@ -48,9 +48,7 @@ type CancelDeliveryRequest struct {
 }
 
 type GetClosestCouriersRequest struct {
-	Meta   Meta   `json:"meta"`
-	Id     string `json:"id"`
-	Origin Coord  `json:"origin"`
+	Origin Coord `json:"origin"`
 }
 
 type NewDelivery struct {
@@ -66,8 +64,9 @@ type AcceptDelivery struct {
 }
 
 type CourierWithEta struct {
-	Courier  *User
-	Duration float64
+	Courier  *User   `json:"courier"`
+	Distance float64 `json:"distance"`
+	Duration float64 `json:"duration"`
 }
 
 type DeliveryAcceptedPayload struct {
@@ -78,10 +77,24 @@ type DeliveryAcceptedPayload struct {
 	DurationToPickup float64         `json:"durationToPickup"`
 }
 
-// type DeliveryAcceptedPayload struct {
-// 	Meta             Meta            `json:"meta"`
-// 	Courier         models.Courier `json:"courier"`
-// 	Delivery         models.Delivery `json:"delivery"`
-// 	DistanceToPickup float64         `json:"distanceToPickup"`
-// 	DurationToPickup float64         `json:"durationToPickup"`
-// }
+type NoCourierAvailable struct {
+	Meta    Meta   `json:"meta"`
+	Message string `json:"message"`
+}
+
+type CourierLocation struct {
+	Meta Meta `json:"meta"`
+	Coord
+	DistanceToPickup float64 `json:"distanceToPickup"`
+	DurationToPickup float64 `json:"durationToPickup"`
+}
+
+type PricePerProduct struct {
+	ProductId uint `json:"productId"`
+	Price     int  `json:"price"`
+}
+
+type GetDeliveryCostRequest struct {
+	Origin      Coord `json:"origin" validate:"required"`
+	Destination Coord `json:"destination" validate:"required"`
+}

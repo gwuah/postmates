@@ -95,3 +95,14 @@ func (r *Repository) GetCouriersInIndex(index h3.H3Index) ([]string, error) {
 	return couriersIds, nil
 
 }
+
+func (r *Repository) GetAllCouriers(ids []string) ([]*shared.User, error) {
+	couriers := []*shared.User{}
+
+	for _, id := range ids {
+		courier, _ := r.GetCourierFromRedis(id)
+		couriers = append(couriers, courier)
+	}
+
+	return couriers, nil
+}

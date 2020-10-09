@@ -33,6 +33,12 @@ func NewHub() *Hub {
 	}
 }
 
+func (h *Hub) GetSize() int {
+	h.gil.Lock()
+	defer h.gil.Unlock()
+	return len(h.clients)
+}
+
 func (h *Hub) GetClient(id string) *WSConnection {
 	h.gil.Lock()
 	defer h.gil.Unlock()

@@ -20,3 +20,14 @@ func (r *Repository) FindProduct(id uint) (*models.Product, error) {
 
 	return &product, nil
 }
+
+func (r *Repository) FindAllProducts() ([]models.Product, error) {
+
+	products := []models.Product{}
+
+	if err := r.DB.Find(&products).Error; err != nil {
+		return nil, err
+	}
+
+	return products, nil
+}

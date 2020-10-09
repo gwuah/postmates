@@ -17,12 +17,11 @@ var upgrader = websocket.Upgrader{
 }
 
 var MESSAGE_TYPES = map[string]string{
-	"DeliveryRequest":    "DeliveryRequest",
-	"CancelDelivery":     "CancelDelivery",
-	"GetEstimate":        "GetEstimate",
-	"LocationUpdate":     "LocationUpdate",
-	"GetClosestCouriers": "GetClosestCouriers",
-	"AcceptDelivery":     "AcceptDelivery",
+	"DeliveryRequest": "DeliveryRequest",
+	"CancelDelivery":  "CancelDelivery",
+	"GetEstimate":     "GetEstimate",
+	"LocationUpdate":  "LocationUpdate",
+	"AcceptDelivery":  "AcceptDelivery",
 }
 
 func (h *Handler) handleConnection(entity string) func(c *gin.Context) {
@@ -64,8 +63,6 @@ func (h *Handler) processIncomingMessage(message []byte, ws *ws.WSConnection) {
 		h.handleDeliveryCancellation(message, ws)
 	case MESSAGE_TYPES["LocationUpdate"]:
 		h.handleLocationUpdate(message, ws)
-	case MESSAGE_TYPES["GetClosestCouriers"]:
-		h.handleGetClosestCouriers(message, ws)
 	case MESSAGE_TYPES["AcceptDelivery"]:
 		h.acceptDelivery(message, ws)
 	default:

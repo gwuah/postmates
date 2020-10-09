@@ -31,7 +31,7 @@ func (s *Services) AcceptDelivery(data shared.AcceptDelivery, courierWS *ws.WSCo
 		return err
 	}
 
-	duration, distance, err := s.getDistanceAndDuration(shared.Coord{
+	duration, distance, err := s.eta.GetDistanceAndDuration(shared.Coord{
 		Latitude:  courierFromRedis.Latitude,
 		Longitude: courierFromRedis.Longitude,
 	}, shared.Coord{

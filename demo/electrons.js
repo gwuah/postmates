@@ -23,89 +23,86 @@ const defaultCabPositions = [
   },
 ];
 
-// function courier(id) {
-//   let ws = new WebSocket(`ws://localhost:8080/v1/courier/realtime/${id}`);
-//   ws.on("message", function (data) {
-//     console.log(`ID(${id}) >>> `, data);
-//   });
+class Courier {
+  constructor(id, coord) {
+    this.appState = {
+      id,
+      coord,
+      state: "awaiting_dispatch",
+      courier: null,
+      current_delivery: null,
+    };
+  }
 
-//   ws.on("error", function (data) {
-//     console.log("Error connecting");
-//   });
+  _initialization() {
+    this.ws = new WebSocket(
+      `ws://localhost:8080/v1/courier/realtime/${this.appState.id}`
+    );
 
-//   return (coord) => {
-//     setInterval(() => {
-//       ws.send(
-//         JSON.stringify({
-//           meta: {
-//             type: "IndexCourierLocation",
-//           },
-//           id: id,
-//           latitude: coord.latitude,
-//           longitude: coord.longitude,
-//         })
-//       );
-//     }, 2000);
-//   };
-// }
+    this.ws.on("message",  (msg) => {
+      this.handleMessage(msg)
+    })
 
-function courier(id) {
-  let ws = new WebSocket(`ws://localhost:8080/v1/courier/realtime/${id}`);
-  ws.on("message", function (data) {
-    parsed = JSON.parse(data);
-    // console.log(JSON.stringify(parsed, null, 4));
-    // console.log(`ID(${id}) >>> `, JSON.stringify(parsed, null, 4));
-    console.log(`ID(${id}) >>> `, parsed.meta.type);
+    this.ws.on("error", (data) =>{
+      console.log("Error connecting", data);
+    });
+  }
 
-    if (parsed.meta.type == "NewDelivery" && id == "2") {
+  _handleNewDelivery(parsed) {
+    console.log(`NewDeliveryRequest Recieved ${this.appState.id} `);
+    if (this.appState.id == "2") {
       console.log(`ID(${id}) >>> `, JSON.stringify(parsed, null, 4));
-
-      setTimeout(() => {
-        ws.send(
-          JSON.stringify({
-            meta: {
-              type: "AcceptDelivery",
-            },
-            deliveryId: parsed.delivery.id,
-          })
-        );
-      }, 1000);
+      this.appState.current_delivery = parsed.delivery;
+      this.ws.send(
+        JSON.stringify({
+          meta: {
+            type: "AcceptDelivery",
+          },
+          deliveryId: parsed.delivery.id,
+        })
+      );
     }
-  });
+  }
 
-  ws.on("error", function (data) {
-    console.log("Error connecting", data);
-  });
+  _sendLocationUpdate() {
+    const deliveryId = this.appState.current_delivery
+      ? this.appState.current_delivery.id
+      : null;
 
-  return (coord) => {
     setInterval(() => {
-      ws.send(
+      this.ws.send(
         JSON.stringify({
           meta: {
             type: "LocationUpdate",
           },
           id: id,
-          latitude: coord.latitude,
-          longitude: coord.longitude,
-          state: "on_trip",
-          deliveryId: 50,
+          latitude: this.appState.coord.latitude,
+          longitude: this.appState.coord.longitude,
+          state: this.appState.state,
+          deliveryId,
         })
       );
-      // console.log(`ID ${id}, location indexed`);
-    }, 2000);
-  };
+    }, 3000);
+  }
+
+  handleMessage(message) {
+    let parsed = JSON.parse(data);
+    switch (parsed.meta.type) {
+      case "NewDelivery":
+        this._handleNewDelivery(parsed);
+        break;
+    }
+  }
 }
 
+
 function main() {
-  setTimeout(() => {
-    courier("1")(defaultCabPositions[0]);
-  }, 1000);
-  setTimeout(() => {
-    courier("2")(defaultCabPositions[1]);
-  }, 2000);
-  setTimeout(() => {
-    courier("3")(defaultCabPositions[2]);
-  }, 3000);
+  var c1 = new Courier("1", defaultCabPositions[0])
+  c1._initialization()
+  var c2 = new Courier("2", defaultCabPositions[1])
+  c2._initialization()
+  var c3 = new Courier("2", defaultCabPositions[2])
+  c3._initialization()
 }
 
 main();

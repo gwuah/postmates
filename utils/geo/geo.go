@@ -15,3 +15,7 @@ func CoordToIndex(param shared.Coord) h3.H3Index {
 func GetRingsFromOrigin(coord shared.Coord, steps int) []h3.H3Index {
 	return h3.KRing(CoordToIndex(coord), steps)
 }
+
+func ConvertMetresToKM(distance float64) float64 {
+	return distance / 1000
+}
