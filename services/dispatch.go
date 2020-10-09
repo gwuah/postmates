@@ -3,7 +3,6 @@ package services
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"sort"
 	"time"
@@ -75,7 +74,7 @@ func (s *Services) relayCoordsToCustomer(params shared.UserLocationUpdate) error
 		return nil
 	}
 
-	if customerConn := s.hub.GetClient(fmt.Sprintf("customer_%d", delivery.CustomerID)); customerConn != nil {
+	if customerConn := s.hub.GetCustomer(delivery.CustomerID); customerConn != nil {
 		customerConn.SendMessage(data)
 	}
 
@@ -197,7 +196,7 @@ func (s *Services) DispatchDelivery(data shared.DeliveryRequest, delivery *model
 
 	foundCourierForOrder := false
 
-	if s.hub.GetSize() == 0 {
+	if s.hub.GetSize("couriers") == 0 {
 		res, err := json.Marshal(shared.NoCourierAvailable{
 			Meta: shared.Meta{
 				Type: "NoCourierAvailable",
