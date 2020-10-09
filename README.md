@@ -21,3 +21,15 @@ go run main.go
 go build main.go
 ./main
 ```
+
+# Delivery Status Types
+
+- pending - Delivery has been accepted but does not yet have a electron assigned
+- pending_pickup - Electron is assigned and is en route to pick up the items
+- nearing_pickup - Electron is closing in on pickup point
+- at_pickup - Electron is at the pickup location
+- delivery_ongoing - Electron has picked up order is moving towards the dropoff
+- nearing_dropoff - Electron is closing in on the dropoff point
+- at_dropoff - Electron is at the dropoff location
+- delivered - Electron has completed delivery
+- canceled - Delivery has been canceled.

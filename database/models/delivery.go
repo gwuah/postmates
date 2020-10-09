@@ -1,8 +1,36 @@
 package models
 
+type Status string
+
+const (
+	// delivery status types
+	Pending         Status = "pending"
+	PendingPickup          = "pending_pickup"
+	NearingPickup          = "nearing_pickup"
+	AtPickup               = "at_pickup"
+	DeliveryOngoing        = "delivery_ongoing"
+	NearingDropoff         = "nearing_dropoff"
+	AtDropOff              = "at_dropoff"
+	Delivered              = "delivered"
+	Cancelled              = "cancelled"
+
+	// electron status types
+	AwaitingDispatch = "awaiting_dispatch"
+	Dispatched       = "dispatched"
+	OnTrip           = "on_trip"
+	Offline          = "offline"
+
+	// vehicle status
+	Inactive = "inactive"
+
+	// customer status
+	Searching = "searching"
+	AtRest    = "atRest"
+)
+
 type Delivery struct {
 	Model
-	Status               string   `json:"status"`
+	Status               Status   `json:"status"`
 	OriginLongitude      float64  `json:"originLongitude"`
 	OriginLatitude       float64  `json:"originLatitude"`
 	DestinationLongitude float64  `json:"destinationLongitude"`
@@ -14,8 +42,9 @@ type Delivery struct {
 	Notes                string   `json:"notes"`
 	CustomerID           uint     `json:"customerId"`
 	Customer             Customer `json:"customer"`
-	OrderID              uint     `json:"orderId"`
-	Order                Order    `json:"order"`
 	ProductID            uint     `json:"productId"`
 	Product              Product  `json:"product"`
+	Eta                  int      `json:"eta"`
+	ElectronID           *uint    `json:"electronId"`
+	Electron             Electron `json:"electron"`
 }

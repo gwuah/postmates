@@ -48,7 +48,7 @@ func Start(e *Server, cfg *Config) {
 	go func() {
 		<-quit
 		if err := s.Close(); err != nil {
-			log.Println("Failed To ShutDown Server", err)
+			log.Println("failed To ShutDown Server", err)
 		}
 		log.Println("Shut Down Server")
 	}()

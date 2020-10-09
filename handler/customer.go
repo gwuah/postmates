@@ -23,13 +23,13 @@ func (h *Handler) ListCustomers(c *gin.Context) {
 
 	if err := h.DB.Find(&customers).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Failed To Retrieve Customers",
+			"message": "failed To Retrieve Customers",
 		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":   "Success",
+		"message":   "success",
 		"customers": customers,
 	})
 }
@@ -46,13 +46,13 @@ func (h *Handler) ViewCustomer(c *gin.Context) {
 	result := h.DB.First(customer, id)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Failed To Retrieve Customer",
+			"message": "failed To Retrieve Customer",
 		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":  "Success",
+		"message":  "success",
 		"customer": customer,
 	})
 	return
@@ -88,7 +88,7 @@ func (h *Handler) CreateCustomer(c *gin.Context) {
 	if err != nil && err != gorm.ErrRecordNotFound {
 		log.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Request Failed",
+			"message": "Request failed",
 		})
 		return
 	}
@@ -106,7 +106,7 @@ func (h *Handler) CreateCustomer(c *gin.Context) {
 		if err != nil {
 			log.Println(err)
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"message": "Customer Creation Failed",
+				"message": "Customer Creation failed",
 			})
 			return
 		}

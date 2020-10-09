@@ -27,3 +27,13 @@ func (r *Repository) CreateCustomerWithPhone(phone string) (*models.Customer, er
 
 	return &customer, nil
 }
+
+func (r *Repository) UpdateCustomer(id uint, data map[string]interface{}) (*models.Customer, error) {
+	var customer models.Customer
+
+	if err := r.DB.Model(&customer).Where("id = ?", id).Updates(data).Error; err != nil {
+		return nil, err
+	}
+
+	return &customer, nil
+}

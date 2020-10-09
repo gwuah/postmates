@@ -34,10 +34,10 @@ func (room *Room) run() {
 		select {
 
 		case request := <-room.joinQueue:
-			room.members[request.w.getIdBasedOnType()] = request.w
+			room.members[request.w.GetIdBasedOnType()] = request.w
 		case request := <-room.leaveQueue:
-			if _, ok := room.members[request.w.getIdBasedOnType()]; ok {
-				delete(room.members, request.w.getIdBasedOnType())
+			if _, ok := room.members[request.w.GetIdBasedOnType()]; ok {
+				delete(room.members, request.w.GetIdBasedOnType())
 				close(request.w.Send)
 			}
 		case message := <-room.broadcast:
