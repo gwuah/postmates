@@ -2,7 +2,6 @@ package handler
 
 import (
 	"net/http"
-	"sort"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -25,8 +24,7 @@ func (h *Handler) GetClosestCouriers(c *gin.Context) {
 		}
 	}
 
-	ids := h.Services.GetClosestCouriers(data.Origin, 2)
-	couriers, err := h.Repo.GetAllCouriers(ids)
+	couriersWithEta, err := h.Services.GetClosestCouriers(data.Origin, 2)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -34,36 +32,6 @@ func (h *Handler) GetClosestCouriers(c *gin.Context) {
 			"err":     err,
 		})
 		return
-	}
-
-	var couriersWithEta []shared.CourierWithEta
-
-	for _, courier := range couriers {
-		duration, distance, err := h.Eta.GetDistanceAndDuration(shared.Coord{
-			Latitude:  courier.Latitude,
-			Longitude: courier.Longitude,
-		}, shared.Coord{
-			Latitude:  data.Origin.Latitude,
-			Longitude: data.Origin.Longitude,
-		})
-
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"message": "failure",
-				"err":     err,
-			})
-			return
-		}
-
-		couriersWithEta = append(couriersWithEta, shared.CourierWithEta{
-			Courier:  courier,
-			Distance: float64(distance),
-			Duration: float64(duration),
-		})
-
-		sort.Slice(couriersWithEta, func(i, j int) bool {
-			return couriersWithEta[i].Duration < couriersWithEta[j].Duration
-		})
 	}
 
 	c.JSON(http.StatusOK, gin.H{

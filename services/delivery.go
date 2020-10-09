@@ -2,7 +2,6 @@ package services
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 
 	"github.com/gwuah/api/database/models"
@@ -72,7 +71,7 @@ func (s *Services) AcceptDelivery(data shared.AcceptDelivery, courierWS *ws.WSCo
 		return err
 	}
 
-	customer := s.hub.GetClient(fmt.Sprintf("customer_%d", delivery.CustomerID))
+	customer := s.hub.GetCustomer(delivery.CustomerID)
 	if customer != nil {
 		go func() {
 			courier.Latitude = courierFromRedis.Latitude

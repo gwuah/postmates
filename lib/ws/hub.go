@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"fmt"
 	"sync"
 )
 
@@ -37,6 +38,14 @@ func (h *Hub) GetSize() int {
 	h.gil.Lock()
 	defer h.gil.Unlock()
 	return len(h.clients)
+}
+
+func (h *Hub) GetCourier(id string) *WSConnection {
+	return h.GetClient(fmt.Sprintf("courier_%s", id))
+}
+
+func (h *Hub) GetCustomer(id uint) *WSConnection {
+	return h.GetClient(fmt.Sprintf("customer_%d", id))
 }
 
 func (h *Hub) GetClient(id string) *WSConnection {

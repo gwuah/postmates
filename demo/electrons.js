@@ -51,7 +51,7 @@ class Courier {
   _handleNewDelivery(parsed) {
     console.log(`NewDeliveryRequest Recieved ${this.appState.id} `);
     if (this.appState.id == "2") {
-      console.log(`ID(${id}) >>> `, JSON.stringify(parsed, null, 4));
+      console.log(`ID(${this.appState.id}) >>> `, JSON.stringify(parsed, null, 4));
       this.appState.current_delivery = parsed.delivery;
       this.ws.send(
         JSON.stringify({
@@ -86,7 +86,7 @@ class Courier {
   }
 
   handleMessage(message) {
-    let parsed = JSON.parse(data);
+    let parsed = JSON.parse(message);
     switch (parsed.meta.type) {
       case "NewDelivery":
         this._handleNewDelivery(parsed);
@@ -101,7 +101,7 @@ function main() {
   c1._initialization()
   var c2 = new Courier("2", defaultCabPositions[1])
   c2._initialization()
-  var c3 = new Courier("2", defaultCabPositions[2])
+  var c3 = new Courier("3", defaultCabPositions[2])
   c3._initialization()
 }
 
