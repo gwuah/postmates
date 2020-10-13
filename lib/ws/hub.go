@@ -1,11 +1,13 @@
 package ws
 
 import (
+	"fmt"
 	"sync"
 )
 
 type Hub struct {
-	clients         map[string]*WSConnection
+	customers       map[string]*WSConnection
+	couriers        map[string]*WSConnection
 	broadcast       chan []byte
 	Register        chan *WSConnection
 	unregister      chan *WSConnection
@@ -22,7 +24,8 @@ func NewHub() *Hub {
 		Register:   make(chan *WSConnection),
 		unregister: make(chan *WSConnection),
 
-		clients: make(map[string]*WSConnection),
+		customers: make(map[string]*WSConnection),
+		couriers:  make(map[string]*WSConnection),
 
 		rooms:           make(map[string]*Room),
 		createRoomQueue: make(chan RoomRequest),
@@ -33,10 +36,29 @@ func NewHub() *Hub {
 	}
 }
 
-func (h *Hub) GetClient(id string) *WSConnection {
+func (h *Hub) GetSize(entities string) int {
 	h.gil.Lock()
 	defer h.gil.Unlock()
-	return h.clients[id]
+
+	if entities == "couriers" {
+		return len(h.couriers)
+	} else {
+		return len(h.customers)
+	}
+}
+
+func (h *Hub) GetCourier(id string) *WSConnection {
+	// in future, we can refactor this so every entity has their own mutex
+	h.gil.Lock()
+	defer h.gil.Unlock()
+	return h.couriers[id]
+}
+
+func (h *Hub) GetCustomer(id uint) *WSConnection {
+	// in future, we can refactor this so every entity has their own mutex
+	h.gil.Lock()
+	defer h.gil.Unlock()
+	return h.customers[fmt.Sprintf("%d", id)]
 }
 
 func (h *Hub) createRoom(name string) {
@@ -52,15 +74,30 @@ func (h *Hub) Run() {
 		select {
 		case conn := <-h.Register:
 			h.gil.Lock()
-			h.clients[conn.GetIdBasedOnType()] = conn
+
+			if conn.Entity == "courier" {
+				h.couriers[conn.Id] = conn
+			} else {
+				h.customers[conn.Id] = conn
+			}
 
 			h.gil.Unlock()
+
 		case conn := <-h.unregister:
 			h.gil.Lock()
-			if _, ok := h.clients[conn.GetIdBasedOnType()]; ok {
-				delete(h.clients, conn.GetIdBasedOnType())
-				conn.Deactivate()
+
+			if conn.Entity == "courier" {
+				if _, ok := h.couriers[conn.Id]; ok {
+					delete(h.couriers, conn.Id)
+					conn.Deactivate()
+				}
+			} else {
+				if _, ok := h.customers[conn.Id]; ok {
+					delete(h.customers, conn.Id)
+					conn.Deactivate()
+				}
 			}
+
 			h.gil.Unlock()
 
 		case request := <-h.createRoomQueue:

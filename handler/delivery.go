@@ -9,8 +9,8 @@ import (
 	"github.com/gwuah/api/shared"
 )
 
-type ElectronWithEta struct {
-	Electron *shared.User
+type CourierWithEta struct {
+	Courier  *shared.User
 	Duration float64
 }
 
@@ -42,7 +42,7 @@ func (h *Handler) processDeliveryRequest(message []byte, ws *ws.WSConnection) {
 	}
 
 	_, err = h.Repo.UpdateCustomer(data.CustomerID, map[string]interface{}{
-		"Status": models.Searching,
+		"State": models.Searching,
 	})
 
 	if err != nil {

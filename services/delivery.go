@@ -2,32 +2,13 @@ package services
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 
 	"github.com/gwuah/api/database/models"
 	"github.com/gwuah/api/lib/ws"
 	"github.com/gwuah/api/shared"
 	"github.com/gwuah/api/utils"
-	"github.com/ryankurte/go-mapbox/lib/base"
 )
-
-func (s *Services) getElectronEta(data models.Delivery, electron shared.User) (float64, error) {
-	response := s.eta.GetDurationFromOrigin(base.Location{
-		Latitude:  data.OriginLatitude,
-		Longitude: data.OriginLongitude,
-	}, []base.Location{{
-		Latitude:  electron.Latitude,
-		Longitude: electron.Longitude,
-	}})
-
-	if response.Code != "Ok" {
-		return 0, shared.MAPBOX_ERROR
-	}
-
-	return response.Durations[0][1], nil
-
-}
 
 func (s *Services) CreateDelivery(data shared.DeliveryRequest) (*models.Delivery, error) {
 	delivery, err := s.repo.CreateDelivery(data)
@@ -37,10 +18,10 @@ func (s *Services) CreateDelivery(data shared.DeliveryRequest) (*models.Delivery
 	return delivery, nil
 }
 
-func (s *Services) AcceptDelivery(data shared.AcceptDelivery, electronWS *ws.WSConnection) error {
-	electronFromRedis, err := s.repo.GetElectronFromRedis(electronWS.Id)
+func (s *Services) AcceptDelivery(data shared.AcceptDelivery, courierWS *ws.WSConnection) error {
+	courierFromRedis, err := s.repo.GetCourierFromRedis(courierWS.Id)
 	if err != nil {
-		log.Printf("failed to retrieve electron %s from redis", electronWS.Id)
+		log.Printf("failed to retrieve courier %s from redis", courierWS.Id)
 		return nil
 	}
 
@@ -49,30 +30,35 @@ func (s *Services) AcceptDelivery(data shared.AcceptDelivery, electronWS *ws.WSC
 		return err
 	}
 
-	eta, err := s.getElectronEta(*delivery, *electronFromRedis)
+	duration, distance, err := s.eta.GetDistanceAndDuration(shared.Coord{
+		Latitude:  courierFromRedis.Latitude,
+		Longitude: courierFromRedis.Longitude,
+	}, shared.Coord{
+		Latitude:  delivery.OriginLatitude,
+		Longitude: delivery.OriginLongitude,
+	})
 	if err != nil {
-		log.Printf("failed to get electron %s ETA", electronWS.Id)
+		log.Printf("failed to get courier %s ETA", courierWS.Id)
 		return nil
 	}
 
 	_, err = s.repo.UpdateDelivery(data.DeliveryId, map[string]interface{}{
-		"Status":     models.PendingPickup,
-		"ElectronID": electronWS.Id,
-		"Eta":        eta,
+		"State":     models.PendingPickup,
+		"CourierID": courierWS.Id,
 	})
 	if err != nil {
 		return err
 	}
 
-	_, err = s.repo.UpdateElectron(uint(utils.ConvertToUint64(electronWS.Id)), map[string]interface{}{
-		"Status": models.Dispatched,
+	_, err = s.repo.UpdateCourier(uint(utils.ConvertToUint64(courierWS.Id)), map[string]interface{}{
+		"State": models.Dispatched,
 	})
 	if err != nil {
 		return err
 	}
 
 	go func() {
-		electronWS.AckDeliveryAcceptance(true)
+		courierWS.AckDeliveryAcceptance(true)
 	}()
 
 	delivery, err = s.repo.FindDelivery(data.DeliveryId, true)
@@ -80,22 +66,25 @@ func (s *Services) AcceptDelivery(data shared.AcceptDelivery, electronWS *ws.WSC
 		return err
 	}
 
-	electron, err := s.repo.FindElectron(*delivery.ElectronID)
+	courier, err := s.repo.FindCourier(*delivery.CourierID)
 	if err != nil {
 		return err
 	}
 
-	customer := s.hub.GetClient(fmt.Sprintf("customer_%d", delivery.CustomerID))
+	customer := s.hub.GetCustomer(delivery.CustomerID)
 	if customer != nil {
 		go func() {
+			courier.Latitude = courierFromRedis.Latitude
+			courier.Longitude = courierFromRedis.Longitude
 
 			acceptanceDataStruct := shared.DeliveryAcceptedPayload{
 				Meta: shared.Meta{
 					Type: "DeliveryAccepted",
 				},
-				Electron: *electron,
-				Delivery: *delivery,
-				Eta:      eta,
+				Courier:          *courier,
+				Delivery:         *delivery,
+				DistanceToPickup: float64(distance),
+				DurationToPickup: float64(duration),
 			}
 
 			acceptanceData, err := json.Marshal(acceptanceDataStruct)

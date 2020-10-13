@@ -20,7 +20,7 @@ function connect(id) {
           },
           productId: 1,
           customerID: 1,
-          notes: "Hello",
+          notes: "Handle it carefully",
           origin,
           destination: {
             longitude: 2.4345545,

@@ -50,7 +50,7 @@ function connect(id) {
       ws.send(
         JSON.stringify({
           meta: {
-            type: "GetClosestElectrons",
+            type: "GetClosestCouriers",
           },
           id: id,
           origin,

@@ -23,86 +23,86 @@ const defaultCabPositions = [
   },
 ];
 
-// function electron(id) {
-//   let ws = new WebSocket(`ws://localhost:8080/v1/electron/realtime/${id}`);
-//   ws.on("message", function (data) {
-//     console.log(`ID(${id}) >>> `, data);
-//   });
+class Courier {
+  constructor(id, coord) {
+    this.appState = {
+      id,
+      coord,
+      state: "awaiting_dispatch",
+      courier: null,
+      current_delivery: null,
+    };
+  }
 
-//   ws.on("error", function (data) {
-//     console.log("Error connecting");
-//   });
+  _initialization() {
+    this.ws = new WebSocket(
+      `ws://localhost:8080/v1/courier/realtime/${this.appState.id}`
+    );
 
-//   return (coord) => {
-//     setInterval(() => {
-//       ws.send(
-//         JSON.stringify({
-//           meta: {
-//             type: "IndexElectronLocation",
-//           },
-//           id: id,
-//           latitude: coord.latitude,
-//           longitude: coord.longitude,
-//         })
-//       );
-//     }, 2000);
-//   };
-// }
+    this.ws.on("message",  (msg) => {
+      this.handleMessage(msg)
+    })
 
-function electron(id) {
-  let ws = new WebSocket(`ws://localhost:8080/v1/electron/realtime/${id}`);
-  ws.on("message", function (data) {
-    parsed = JSON.parse(data);
-    // console.log(JSON.stringify(parsed, null, 4));
-    // console.log(`ID(${id}) >>> `, JSON.stringify(parsed, null, 4));
-    console.log(`ID(${id}) >>> `, parsed.meta.type);
+    this.ws.on("error", (data) =>{
+      console.log("Error connecting", data);
+    });
+  }
 
-    if (parsed.meta.type == "NewDelivery" && id == "2") {
-      console.log(`ID(${id}) >>> `, JSON.stringify(parsed, null, 4));
-
-      setTimeout(() => {
-        ws.send(
-          JSON.stringify({
-            meta: {
-              type: "AcceptDelivery",
-            },
-            deliveryId: parsed.delivery.id,
-          })
-        );
-      }, 1000);
-    }
-  });
-
-  ws.on("error", function (data) {
-    console.log("Error connecting", data);
-  });
-
-  return (coord) => {
-    setInterval(() => {
-      ws.send(
+  _handleNewDelivery(parsed) {
+    console.log(`NewDeliveryRequest Recieved ${this.appState.id} `);
+    if (this.appState.id == "2") {
+      console.log(`ID(${this.appState.id}) >>> `, JSON.stringify(parsed, null, 4));
+      this.appState.current_delivery = parsed.delivery;
+      this.ws.send(
         JSON.stringify({
           meta: {
-            type: "IndexElectronLocation",
+            type: "AcceptDelivery",
           },
-          id: id,
-          latitude: coord.latitude,
-          longitude: coord.longitude,
+          deliveryId: parsed.delivery.id,
         })
       );
-    }, 2000);
-  };
+    }
+  }
+
+  _sendLocationUpdate() {
+    const deliveryId = this.appState.current_delivery
+      ? this.appState.current_delivery.id
+      : null;
+
+    setInterval(() => {
+      this.ws.send(
+        JSON.stringify({
+          meta: {
+            type: "LocationUpdate",
+          },
+          id: id,
+          latitude: this.appState.coord.latitude,
+          longitude: this.appState.coord.longitude,
+          state: this.appState.state,
+          deliveryId,
+        })
+      );
+    }, 3000);
+  }
+
+  handleMessage(message) {
+    let parsed = JSON.parse(message);
+    switch (parsed.meta.type) {
+      case "NewDelivery":
+        this._handleNewDelivery(parsed);
+        break;
+    }
+  }
 }
 
+
 function main() {
-  setTimeout(() => {
-    electron("1")(defaultCabPositions[0]);
-  }, 1000);
-  setTimeout(() => {
-    electron("2")(defaultCabPositions[1]);
-  }, 2000);
-  setTimeout(() => {
-    electron("3")(defaultCabPositions[2]);
-  }, 3000);
+  var c1 = new Courier("1", defaultCabPositions[0])
+  c1._initialization()
+  var c2 = new Courier("2", defaultCabPositions[1])
+  c2._initialization()
+  var c3 = new Courier("3", defaultCabPositions[2])
+  c3._initialization()
 }
 
 main();

@@ -1,8 +1,8 @@
 const WebSocket = require("ws");
 
 function connect(id) {
-  console.log(`Electron ${id} initating a connection ... `);
-  let ws = new WebSocket(`ws://localhost:8080/v1/electron/realtime/${id}`);
+  console.log(`Courier ${id} initating a connection ... `);
+  let ws = new WebSocket(`ws://localhost:8080/v1/courier/realtime/${id}`);
 
   ws.on("open", (e) => {
     console.log("connection successful");
@@ -11,7 +11,7 @@ function connect(id) {
       ws.send(
         JSON.stringify({
           meta: {
-            type: "IndexElectronLocation",
+            type: "LocationUpdate",
           },
           id: id,
           latitude: 5.688153174273126,

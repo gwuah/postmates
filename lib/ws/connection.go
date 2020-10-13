@@ -90,8 +90,8 @@ func (w *WSConnection) WritePump() {
 }
 
 func (w *WSConnection) GetIdBasedOnType() string {
-	if w.Entity == "electron" {
-		return fmt.Sprintf("electron_%s", w.Id)
+	if w.Entity == "courier" {
+		return fmt.Sprintf("courier_%s", w.Id)
 	} else {
 		return fmt.Sprintf("customer_%s", w.Id)
 	}

@@ -27,7 +27,9 @@ type User struct {
 }
 
 type UserLocationUpdate struct {
-	Id string `json:"id"`
+	Id         string       `json:"id"`
+	State      models.State `json:"state"`
+	DeliveryId uint         `json:"deliveryId"`
 	Coord
 }
 
@@ -45,15 +47,15 @@ type CancelDeliveryRequest struct {
 	TripId uint `json:"tripId"`
 }
 
-type GetClosestElectronsRequest struct {
-	Meta   Meta   `json:"meta"`
-	Id     string `json:"id"`
-	Origin Coord  `json:"origin"`
+type GetClosestCouriersRequest struct {
+	Origin Coord `json:"origin"`
 }
 
 type NewDelivery struct {
-	Meta     Meta             `json:"meta"`
-	Delivery *models.Delivery `json:"delivery"`
+	Meta             Meta             `json:"meta"`
+	Delivery         *models.Delivery `json:"delivery"`
+	DistanceToPickup float64          `json:"distanceToPickup"`
+	DurationToPickup float64          `json:"durationToPickup"`
 }
 
 type AcceptDelivery struct {
@@ -61,14 +63,38 @@ type AcceptDelivery struct {
 	DeliveryId uint `json:"deliveryId"`
 }
 
-type ElectronWithEta struct {
-	Electron *User
-	Duration float64
+type CourierWithEta struct {
+	Courier  *User   `json:"courier"`
+	Distance float64 `json:"distance"`
+	Duration float64 `json:"duration"`
 }
 
 type DeliveryAcceptedPayload struct {
-	Meta     Meta            `json:"meta"`
-	Electron models.Electron `json:"electron"`
-	Delivery models.Delivery `json:"delivery"`
-	Eta      float64         `json:"eta"`
+	Meta             Meta            `json:"meta"`
+	Courier          models.Courier  `json:"courier"`
+	Delivery         models.Delivery `json:"delivery"`
+	DistanceToPickup float64         `json:"distanceToPickup"`
+	DurationToPickup float64         `json:"durationToPickup"`
+}
+
+type NoCourierAvailable struct {
+	Meta    Meta   `json:"meta"`
+	Message string `json:"message"`
+}
+
+type CourierLocation struct {
+	Meta Meta `json:"meta"`
+	Coord
+	DistanceToPickup float64 `json:"distanceToPickup"`
+	DurationToPickup float64 `json:"durationToPickup"`
+}
+
+type PricePerProduct struct {
+	ProductId uint `json:"productId"`
+	Price     int  `json:"price"`
+}
+
+type GetDeliveryCostRequest struct {
+	Origin      Coord `json:"origin" validate:"required"`
+	Destination Coord `json:"destination" validate:"required"`
 }

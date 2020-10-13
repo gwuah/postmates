@@ -3,6 +3,7 @@ module github.com/gwuah/api
 go 1.14
 
 require (
+	github.com/airspacetechnologies/go-mapbox v0.0.0-20200424210529-d924003d0bdd
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/gin-gonic/gin v1.6.3

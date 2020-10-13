@@ -51,29 +51,29 @@ func SeedProducts(DB *gorm.DB, path string) {
 	}
 }
 
-func SeedElectrons(DB *gorm.DB, path string) {
-	config, err := yaml.ReadFile(path + "/database/electrons.yml")
+func SeedCouriers(DB *gorm.DB, path string) {
+	config, err := yaml.ReadFile(path + "/database/couriers.yml")
 	if err != nil {
 		panic(err)
 	}
 
-	electronList, ok := config.Root.(yaml.List)
+	courierList, ok := config.Root.(yaml.List)
 	if !ok {
 		panic("failed to parse product.yml")
 	}
 
-	for i := 0; i < electronList.Len(); i++ {
-		name := strings.ToLower(fmt.Sprintf("%s", electronList.Item(i)))
+	for i := 0; i < courierList.Len(); i++ {
+		name := strings.ToLower(fmt.Sprintf("%s", courierList.Item(i)))
 		firstName := strings.Split(name, " ")[0]
 		lastName := strings.Split(name, " ")[1]
 
-		var electron models.Electron
+		var courier models.Courier
 
-		if err := DB.Where("first_name = ? AND last_name = ?", firstName, lastName).First(&electron).Error; err != nil {
+		if err := DB.Where("first_name = ? AND last_name = ?", firstName, lastName).First(&courier).Error; err != nil {
 			if err == gorm.ErrRecordNotFound {
-				DB.Create(&models.Electron{FirstName: firstName, LastName: lastName})
+				DB.Create(&models.Courier{FirstName: firstName, LastName: lastName})
 			} else {
-				log.Printf("Electron [ %s ] lookup failed", name)
+				log.Printf("Courier [ %s ] lookup failed", name)
 				log.Println(err)
 			}
 		}
@@ -140,13 +140,13 @@ func SeedVehicles(DB *gorm.DB, path string) {
 			panic("failed to parse vehicles.yml")
 		}
 
-		electronId := fmt.Sprintf("%v", value["electronId"])
+		courierId := fmt.Sprintf("%v", value["courierId"])
 		vehicleModel := fmt.Sprintf("%v", value["vehicleModel"])
 		regNumber := fmt.Sprintf("%v", value["regNumber"])
 		Type := fmt.Sprintf("%v", value["type"])
 
 		vehicle := models.Vehicle{
-			ElectronID:   uint(utils.ConvertToUint64(electronId)),
+			CourierID:    uint(utils.ConvertToUint64(courierId)),
 			VehicleModel: vehicleModel,
 			RegNumber:    regNumber,
 			Type:         utils.ConvertToVehicleType(Type),
