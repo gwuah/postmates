@@ -19,9 +19,9 @@ import (
 
 func main() {
 	ENV := os.Getenv("ENV")
-	PORT := fmt.Sprintf(":%s", os.Getenv("PORT")
+	PORT := fmt.Sprintf(":%s", os.Getenv("PORT"))
 	fmt.Println("POERRRRRRRRTTT", PORT)
-	
+
 	if ENV == "" {
 		err := godotenv.Load()
 
