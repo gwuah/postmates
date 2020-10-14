@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gwuah/api/database/models"
-	"github.com/gwuah/api/shared"
+	"github.com/electra-systems/core-api/database/models"
+	"github.com/electra-systems/core-api/shared"
 )
 
 var table = [...]byte{'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'}

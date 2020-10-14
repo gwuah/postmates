@@ -5,8 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"github.com/gwuah/api/database/models"
-	myValidator "github.com/gwuah/api/utils/validator"
+	"github.com/electra-systems/core-api/database/models"
+	myValidator "github.com/electra-systems/core-api/utils/validator"
 )
 
 type SignupRequest struct {

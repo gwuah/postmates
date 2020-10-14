@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/gwuah/api/database/models"
-	"github.com/gwuah/api/lib/ws"
-	"github.com/gwuah/api/shared"
-	"github.com/gwuah/api/utils"
+	"github.com/electra-systems/core-api/database/models"
+	"github.com/electra-systems/core-api/lib/ws"
+	"github.com/electra-systems/core-api/shared"
+	"github.com/electra-systems/core-api/utils"
 )
 
 func (s *Services) CreateDelivery(data shared.DeliveryRequest) (*models.Delivery, error) {

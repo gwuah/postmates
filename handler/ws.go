@@ -7,8 +7,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"github.com/gwuah/api/lib/ws"
-	"github.com/gwuah/api/shared"
+	"github.com/electra-systems/core-api/lib/ws"
+	"github.com/electra-systems/core-api/shared"
 )
 
 var upgrader = websocket.Upgrader{

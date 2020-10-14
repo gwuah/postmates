@@ -5,14 +5,14 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
-	"github.com/gwuah/api/lib/billing"
-	"github.com/gwuah/api/lib/eta"
-	"github.com/gwuah/api/lib/sms"
-	"github.com/gwuah/api/lib/ws"
-	"github.com/gwuah/api/repository"
-	"github.com/gwuah/api/services"
-	"github.com/gwuah/api/utils/jwt"
-	"github.com/gwuah/api/utils/secure"
+	"github.com/electra-systems/core-api/lib/billing"
+	"github.com/electra-systems/core-api/lib/eta"
+	"github.com/electra-systems/core-api/lib/sms"
+	"github.com/electra-systems/core-api/lib/ws"
+	"github.com/electra-systems/core-api/repository"
+	"github.com/electra-systems/core-api/services"
+	"github.com/electra-systems/core-api/utils/jwt"
+	"github.com/electra-systems/core-api/utils/secure"
 	"gorm.io/gorm"
 )
 

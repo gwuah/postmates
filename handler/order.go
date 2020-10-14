@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gwuah/api/utils"
+	"github.com/electra-systems/core-api/utils"
 )
 
 func (h *Handler) GetOrder(c *gin.Context) {

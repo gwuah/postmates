@@ -7,14 +7,14 @@ import (
 	"strconv"
 
 	"github.com/fatih/color"
-	"github.com/gwuah/api/database"
-	"github.com/gwuah/api/database/models"
-	"github.com/gwuah/api/database/postgres"
-	"github.com/gwuah/api/database/redis"
-	"github.com/gwuah/api/handler"
-	"github.com/gwuah/api/server"
-	"github.com/gwuah/api/utils/jwt"
-	"github.com/gwuah/api/utils/secure"
+	"github.com/electra-systems/core-api/database"
+	"github.com/electra-systems/core-api/database/models"
+	"github.com/electra-systems/core-api/database/postgres"
+	"github.com/electra-systems/core-api/database/redis"
+	"github.com/electra-systems/core-api/handler"
+	"github.com/electra-systems/core-api/server"
+	"github.com/electra-systems/core-api/utils/jwt"
+	"github.com/electra-systems/core-api/utils/secure"
 	"github.com/joho/godotenv"
 )
 

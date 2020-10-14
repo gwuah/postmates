@@ -3,7 +3,7 @@ package billing
 import (
 	"math"
 
-	"github.com/gwuah/api/utils/geo"
+	"github.com/electra-systems/core-api/utils/geo"
 )
 
 const (

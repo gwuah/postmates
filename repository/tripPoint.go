@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"github.com/gwuah/api/database/models"
-	"github.com/gwuah/api/shared"
+	"github.com/electra-systems/core-api/database/models"
+	"github.com/electra-systems/core-api/shared"
 )
 
 func (r *Repository) CreateTripPoint(data shared.UserLocationUpdate) (*models.TripPoint, error) {

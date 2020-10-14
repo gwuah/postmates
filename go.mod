@@ -1,4 +1,4 @@
-module github.com/gwuah/api
+module github.com/electra-systems/core-api
 
 go 1.14
 
