@@ -6,10 +6,10 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 	"github.com/electra-systems/core-api/middleware"
 	"github.com/electra-systems/core-api/utils/validator"
+	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 )
 
 type Config struct {
@@ -38,7 +38,7 @@ func New() Server {
 func Start(e *Server, cfg *Config) {
 
 	s := &http.Server{
-		Addr:    ":8080",
+		Addr:    cfg.Port,
 		Handler: e.Engine,
 	}
 

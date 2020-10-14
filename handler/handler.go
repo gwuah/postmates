@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"net/http"
 	"os"
 
 	"github.com/electra-systems/core-api/lib/billing"
@@ -53,13 +52,6 @@ func New(DB *gorm.DB, jwt jwt.Service, sec *secure.Service, redisDB *redis.Clien
 }
 
 func (h *Handler) Register(v1 *gin.RouterGroup) {
-	v1.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"health":  "OK",
-			"message": "electra core api",
-		})
-	})
-
 	v1.GET("/customer/realtime/:id", h.handleConnection("customer"))
 	v1.GET("/courier/realtime/:id", h.handleConnection("courier"))
 	v1.POST("/get-closest-couriers", h.GetClosestCouriers)
