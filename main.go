@@ -4,7 +4,6 @@ import (
 	"crypto/sha1"
 	"log"
 	"os"
-	"strconv"
 
 	"github.com/electra-systems/core-api/database"
 	"github.com/electra-systems/core-api/database/models"
@@ -71,8 +70,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	REDIS_DB, err := strconv.Atoi(os.Getenv("REDIS_DB"))
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -80,7 +77,6 @@ func main() {
 	redisDB := redis.New(&redis.Config{
 		Addr:     os.Getenv("REDIS_ADDRESS"),
 		Password: os.Getenv("REDIS_PASSWORD"),
-		DB:       REDIS_DB,
 	})
 
 	if err != nil {
