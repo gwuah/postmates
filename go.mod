@@ -2,6 +2,8 @@ module github.com/electra-systems/core-api
 
 go 1.14
 
+// +heroku goVersion go1.14.2
+
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.6.3
@@ -21,5 +23,5 @@ require (
 	google.golang.org/protobuf v1.25.0 // indirect
 	googlemaps.github.io/maps v1.2.3
 	gorm.io/driver/postgres v1.0.0
-	gorm.io/gorm v1.9.19
+	gorm.io/gorm v1.20.2
 )
