@@ -6,7 +6,6 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/fatih/color"
 	"github.com/electra-systems/core-api/database"
 	"github.com/electra-systems/core-api/database/models"
 	"github.com/electra-systems/core-api/database/postgres"
@@ -24,9 +23,6 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	if os.Getenv("MODE") == "testing" {
-		color.Red("API currently in testing mode. some external calls will return static values")
-	}
 
 	db, err := postgres.New(&postgres.Config{
 		User:     os.Getenv("DB_USER"),
@@ -35,10 +31,11 @@ func main() {
 		SSLMode:  os.Getenv("DB_SSLMODE"),
 		Host:     os.Getenv("DB_HOST"),
 		Port:     os.Getenv("DB_PORT"),
+		DBurl:    os.Getenv("DATABASE_URL"),
 	})
 
 	if err != nil {
-		log.Fatal("failed To Connect To Postgresql database")
+		log.Fatal("failed To Connect To Postgresql database", err)
 	}
 
 	err = postgres.SetupDatabase(db,
