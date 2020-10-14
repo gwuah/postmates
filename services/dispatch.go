@@ -49,7 +49,7 @@ func (s *Services) relayCoordsToCustomer(params shared.UserLocationUpdate) error
 		return err
 	}
 
-	duration, distance, err := s.eta.GetDistanceAndDuration(shared.Coord{
+	duration, distance, err := s.eta.GMAPS__getDistanceAndDuration1to1(shared.Coord{
 		Latitude:  redisCourier.Latitude,
 		Longitude: redisCourier.Longitude,
 	}, shared.Coord{
@@ -123,10 +123,10 @@ func (s *Services) indexCourierLocation(param shared.UserLocationUpdate) (*share
 	return courier, nil
 }
 
-func (s *Services) GetClosestCouriers(origin shared.Coord, steps int) ([]shared.CourierWithEta, error) {
+func (s *Services) GetClosestCouriers(destination shared.Coord, steps int) ([]shared.CourierWithEta, error) {
 	var e []shared.CourierWithEta
 
-	rings := geo.GetRingsFromOrigin(origin, steps)
+	rings := geo.GetRingsFromOrigin(destination, steps)
 
 	couriersIds := []string{}
 
@@ -153,34 +153,27 @@ func (s *Services) GetClosestCouriers(origin shared.Coord, steps int) ([]shared.
 		return e, err
 	}
 
-	coords := []shared.Coord{}
+	origins := []shared.Coord{}
 
 	for _, courier := range couriers {
-		coords = append(coords, shared.Coord{
+		origins = append(origins, shared.Coord{
 			Latitude:  courier.Latitude,
 			Longitude: courier.Longitude,
 		})
 	}
 
-	response, err := s.eta.GetDistanceFromOriginsToDestination(coords, origin)
+	response, err := s.eta.GMAPS__getDistanceAndDurationManyTo1(origins, destination)
 
 	if err != nil {
 		return e, err
 	}
 
-	if response.Code != "Ok" {
-		return e, shared.MAPBOX_ERROR
-	}
-
-	durations := response.Durations
-	distances := response.Distances
-
-	for key, duration := range durations[1:] {
+	for key, dt := range response.Rows {
 		courier := couriers[key]
 		e = append(e, shared.CourierWithEta{
 			Courier:  courier,
-			Duration: *duration[0],
-			Distance: *distances[1:][key][0],
+			Duration: dt.Elements[0].Duration.Minutes(),
+			Distance: float64(dt.Elements[0].Distance.Meters),
 		})
 	}
 
