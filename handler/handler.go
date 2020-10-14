@@ -31,7 +31,7 @@ type Handler struct {
 
 func New(DB *gorm.DB, jwt jwt.Service, sec *secure.Service, redisDB *redis.Client) *Handler {
 	SMS := sms.New(os.Getenv("TERMII_API_KEY"))
-	eta := eta.New(os.Getenv("MAPBOX_TOKEN"))
+	eta := eta.New(os.Getenv("GMAPS_TOKEN"))
 	billing := billing.New()
 	hub := ws.NewHub()
 	go hub.Run()

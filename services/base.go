@@ -26,7 +26,7 @@ func (s *Services) GetDeliveryCost(data shared.GetDeliveryCostRequest) (*GetDeli
 		return nil, errors.New("failed to load products")
 	}
 
-	duration, distance, err := s.eta.GetDistanceAndDuration(data.Origin, data.Destination)
+	duration, distance, err := s.eta.GMAPS__getDistanceAndDuration1to1(data.Origin, data.Destination)
 
 	if err != nil {
 		return nil, err

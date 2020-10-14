@@ -2,89 +2,89 @@ package eta
 
 import (
 	"context"
+	"fmt"
 	"log"
-	"time"
 
-	mapbox "github.com/airspacetechnologies/go-mapbox"
 	"github.com/gwuah/api/shared"
+
+	"googlemaps.github.io/maps"
 )
 
 type Eta struct {
-	token  string
-	mapBox *mapbox.Client
+	token string
+	gmaps *maps.Client
 }
 
 type DistanceFromOrigin float64
 type DurationFromOrigin float64
 
-func New(APIKey string) *Eta {
-	if APIKey == "" {
-		log.Fatal("mapbox token required")
+func New(googleAPIKey string) *Eta {
+
+	if googleAPIKey == "" {
+		log.Fatal("gmaps token required")
 	}
 
-	mapboxClient, err := mapbox.NewClient(&mapbox.MapboxConfig{
-		Timeout: 30 * time.Second,
-		APIKey:  APIKey,
-	})
-
+	gmapsClient, err := maps.NewClient(maps.WithAPIKey(googleAPIKey))
 	if err != nil {
-		log.Fatal("failed to initialize mapbox", err)
+		log.Fatal("failed to initialize gmaps", err)
 	}
 
 	return &Eta{
-		token:  APIKey,
-		mapBox: mapboxClient,
+		token: googleAPIKey,
+		gmaps: gmapsClient,
 	}
 }
 
-func transformCoordinates(coords []shared.Coord) mapbox.Coordinates {
-	transformed := mapbox.Coordinates{}
+func (eta *Eta) GMAPS__distanceMatrixBase(origins []shared.Coord, destinations []shared.Coord) (*maps.DistanceMatrixResponse, error) {
 
-	for _, value := range coords {
-		transformed = append(transformed, mapbox.Coordinate{
-			Lat: value.Latitude,
-			Lng: value.Longitude,
-		})
+	modifiedOrigins := []string{}
+	modifiedDestinations := []string{}
+
+	for _, coord := range origins {
+		modifiedOrigins = append(modifiedOrigins, fmt.Sprintf("%f,%f", coord.Latitude, coord.Longitude))
 	}
 
-	return transformed
-}
-
-func (eta *Eta) GetDistanceFromOriginsToDestination(origins []shared.Coord, destination shared.Coord) (*mapbox.DirectionsMatrixResponse, error) {
-	coords := mapbox.Coordinates{
-		mapbox.Coordinate{
-			Lat: destination.Latitude,
-			Lng: destination.Longitude,
-		},
-	}
-	coords = append(coords, transformCoordinates(origins)...)
-
-	request := &mapbox.DirectionsMatrixRequest{
-		Profile:       mapbox.ProfileDrivingTraffic,
-		Coordinates:   coords,
-		Annotations:   mapbox.Annotations{mapbox.AnnotationDistance, mapbox.AnnotationDuration},
-		Destinations:  mapbox.Destinations{0},
-		FallbackSpeed: 60,
+	for _, coord := range destinations {
+		modifiedDestinations = append(modifiedDestinations, fmt.Sprintf("%f,%f", coord.Latitude, coord.Longitude))
 	}
 
-	response, err := eta.mapBox.DirectionsMatrix(context.TODO(), request)
+	r := &maps.DistanceMatrixRequest{
+		Origins:      modifiedOrigins,
+		Destinations: modifiedDestinations,
+	}
 
-	return response, err
+	resp, err := eta.gmaps.DistanceMatrix(context.Background(), r)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
 
 }
 
-func (eta *Eta) GetDistanceAndDuration(origin shared.Coord, destination shared.Coord) (DurationFromOrigin, DistanceFromOrigin, error) {
+func (eta *Eta) GMAPS__getDistanceAndDuration1to1(origin shared.Coord, destination shared.Coord) (int, float64, error) {
 
-	response, err := eta.GetDistanceFromOriginsToDestination([]shared.Coord{origin}, destination)
-
-	if response.Code != "Ok" {
-		return 0, 0, shared.MAPBOX_ERROR
-	}
+	resp, err := eta.GMAPS__distanceMatrixBase([]shared.Coord{origin}, []shared.Coord{destination})
 
 	if err != nil {
 		return 0, 0, err
 	}
 
-	return DurationFromOrigin(*response.Durations[1][0]), DistanceFromOrigin(*response.Distances[1][0]), nil
+	distance := resp.Rows[0].Elements[0].Distance.Meters
+	duration := resp.Rows[0].Elements[0].Duration.Minutes()
 
+	return distance, duration, nil
+
+}
+
+func (eta *Eta) GMAPS__getDistanceAndDurationManyTo1(origins []shared.Coord, destination shared.Coord) (*maps.DistanceMatrixResponse, error) {
+
+	resp, err := eta.GMAPS__distanceMatrixBase(origins, []shared.Coord{destination})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
 }
