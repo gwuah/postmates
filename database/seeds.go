@@ -6,8 +6,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/gwuah/api/database/models"
-	"github.com/gwuah/api/utils"
+	"github.com/electra-systems/core-api/database/models"
+	"github.com/electra-systems/core-api/utils"
 	"github.com/kylelemons/go-gypsy/yaml"
 	"gorm.io/gorm"
 )

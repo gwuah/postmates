@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/go-redis/redis"
-	"github.com/gwuah/api/database/models"
-	"github.com/gwuah/api/lib/ws"
-	"github.com/gwuah/api/shared"
-	"github.com/gwuah/api/utils/geo"
+	"github.com/electra-systems/core-api/database/models"
+	"github.com/electra-systems/core-api/lib/ws"
+	"github.com/electra-systems/core-api/shared"
+	"github.com/electra-systems/core-api/utils/geo"
 )
 
 func (s *Services) HandleLocationUpdate(params shared.UserLocationUpdate) error {

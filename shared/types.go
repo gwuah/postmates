@@ -3,7 +3,7 @@ package shared
 import (
 	"errors"
 
-	"github.com/gwuah/api/database/models"
+	"github.com/electra-systems/core-api/database/models"
 	"github.com/uber/h3-go"
 )
 

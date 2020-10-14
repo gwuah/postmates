@@ -3,7 +3,7 @@ package repository
 import (
 	"errors"
 
-	"github.com/gwuah/api/database/models"
+	"github.com/electra-systems/core-api/database/models"
 	"gorm.io/gorm/clause"
 )
 

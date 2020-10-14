@@ -1,7 +1,7 @@
 package geo
 
 import (
-	"github.com/gwuah/api/shared"
+	"github.com/electra-systems/core-api/shared"
 	"github.com/uber/h3-go"
 )
 

@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/gwuah/api/database/models"
+	"github.com/electra-systems/core-api/database/models"
 )
 
 func (r *Repository) FindCustomerByPhone(phone string) (*models.Customer, error) {

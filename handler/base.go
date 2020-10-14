@@ -5,8 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"github.com/gwuah/api/shared"
-	myValidator "github.com/gwuah/api/utils/validator"
+	"github.com/electra-systems/core-api/shared"
+	myValidator "github.com/electra-systems/core-api/utils/validator"
 )
 
 func (h *Handler) GetDeliveryCost(c *gin.Context) {

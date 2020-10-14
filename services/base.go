@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/gwuah/api/shared"
+	"github.com/electra-systems/core-api/shared"
 )
 
 type PricePerProduct struct {

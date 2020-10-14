@@ -8,8 +8,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	"github.com/gwuah/api/middleware"
-	"github.com/gwuah/api/utils/validator"
+	"github.com/electra-systems/core-api/middleware"
+	"github.com/electra-systems/core-api/utils/validator"
 )
 
 type Config struct {
