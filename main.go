@@ -2,7 +2,6 @@ package main
 
 import (
 	"crypto/sha1"
-	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -19,9 +18,8 @@ import (
 )
 
 func main() {
-	fmt.Println(os.Getenv("ENV"), "testing")
 
-	if os.Getenv("ENV") != "staging" || os.Getenv("ENV") != "production" {
+	if os.Getenv("ENV") != "development" {
 		log.Println("loading env variables")
 		err := godotenv.Load()
 
