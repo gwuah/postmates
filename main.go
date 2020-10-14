@@ -6,15 +6,14 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/fatih/color"
-	"github.com/gwuah/api/database"
-	"github.com/gwuah/api/database/models"
-	"github.com/gwuah/api/database/postgres"
-	"github.com/gwuah/api/database/redis"
-	"github.com/gwuah/api/handler"
-	"github.com/gwuah/api/server"
-	"github.com/gwuah/api/utils/jwt"
-	"github.com/gwuah/api/utils/secure"
+	"github.com/electra-systems/core-api/database"
+	"github.com/electra-systems/core-api/database/models"
+	"github.com/electra-systems/core-api/database/postgres"
+	"github.com/electra-systems/core-api/database/redis"
+	"github.com/electra-systems/core-api/handler"
+	"github.com/electra-systems/core-api/server"
+	"github.com/electra-systems/core-api/utils/jwt"
+	"github.com/electra-systems/core-api/utils/secure"
 	"github.com/joho/godotenv"
 )
 
@@ -27,9 +26,6 @@ func main() {
 			log.Fatal("Error loading .env file")
 		}
 	}
-	if os.Getenv("MODE") == "testing" {
-		color.Red("API currently in testing mode. some external calls will return static values")
-	}
 
 	db, err := postgres.New(&postgres.Config{
 		User:     os.Getenv("DB_USER"),
@@ -38,10 +34,11 @@ func main() {
 		SSLMode:  os.Getenv("DB_SSLMODE"),
 		Host:     os.Getenv("DB_HOST"),
 		Port:     os.Getenv("DB_PORT"),
+		DBurl:    os.Getenv("DATABASE_URL"),
 	})
 
 	if err != nil {
-		log.Fatal("failed To Connect To Postgresql database")
+		log.Fatal("failed To Connect To Postgresql database", err)
 	}
 
 	err = postgres.SetupDatabase(db,

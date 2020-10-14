@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/gwuah/api/database/models"
-	"github.com/gwuah/api/shared"
+	"github.com/electra-systems/core-api/database/models"
+	"github.com/electra-systems/core-api/shared"
 	"github.com/uber/h3-go"
 	"gorm.io/gorm/clause"
 )
