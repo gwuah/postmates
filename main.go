@@ -19,10 +19,13 @@ import (
 )
 
 func main() {
-	err := godotenv.Load()
+	if os.Getenv("ENV") != "staging" || os.Getenv("ENV") != "production" {
+		log.Println("loading env variables")
+		err := godotenv.Load()
 
-	if err != nil {
-		log.Fatal("Error loading .env file")
+		if err != nil {
+			log.Fatal("Error loading .env file")
+		}
 	}
 	if os.Getenv("MODE") == "testing" {
 		color.Red("API currently in testing mode. some external calls will return static values")
