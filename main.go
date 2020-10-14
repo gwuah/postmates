@@ -89,6 +89,7 @@ func main() {
 	routes := s.Group("/v1")
 	h.Register(routes)
 
+	fmt.Println("POERRRRRRRRTTT", os.Getenv("PORT"))
 	server.Start(&s, &server.Config{
 		Port: fmt.Sprintf(":%s", os.Getenv("PORT")),
 	})
