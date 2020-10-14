@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/sha1"
+	"fmt"
 	"log"
 	"os"
 
@@ -20,7 +21,6 @@ func main() {
 	ENV := os.Getenv("ENV")
 
 	if ENV == "" {
-		log.Println("loading env variables")
 		err := godotenv.Load()
 
 		if err != nil {
@@ -90,6 +90,6 @@ func main() {
 	h.Register(routes)
 
 	server.Start(&s, &server.Config{
-		Port: ":8080",
+		Port: fmt.Sprintf(":%s", os.Getenv("PORT")),
 	})
 }

@@ -1,10 +1,9 @@
 package handler
 
 import (
+	"net/http"
 	"os"
 
-	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis"
 	"github.com/electra-systems/core-api/lib/billing"
 	"github.com/electra-systems/core-api/lib/eta"
 	"github.com/electra-systems/core-api/lib/sms"
@@ -13,6 +12,8 @@ import (
 	"github.com/electra-systems/core-api/services"
 	"github.com/electra-systems/core-api/utils/jwt"
 	"github.com/electra-systems/core-api/utils/secure"
+	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis"
 	"gorm.io/gorm"
 )
 
@@ -52,6 +53,12 @@ func New(DB *gorm.DB, jwt jwt.Service, sec *secure.Service, redisDB *redis.Clien
 }
 
 func (h *Handler) Register(v1 *gin.RouterGroup) {
+	v1.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"health":  "OK",
+			"message": "electra core api",
+		})
+	})
 
 	v1.GET("/customer/realtime/:id", h.handleConnection("customer"))
 	v1.GET("/courier/realtime/:id", h.handleConnection("courier"))
