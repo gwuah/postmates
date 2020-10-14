@@ -18,6 +18,7 @@ import (
 )
 
 func main() {
+	ENV := os.Getenv("ENV")
 
 	if ENV == "" {
 		log.Println("loading env variables")
