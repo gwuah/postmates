@@ -10,6 +10,66 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+func (h *Handler) handleCustomerRating(c *gin.Context) {
+	var data shared.CustomerRatingRequest
+	if err := c.ShouldBindJSON(&data); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "failure",
+			"err":     err,
+		})
+		return
+	}
+
+	response, err := h.Services.RateDelivery(shared.RatingRequest{
+		IsCustomerRating: true,
+		CustomerRating:   data,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "failure",
+			"err":     err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "success",
+		"data":    response,
+	})
+
+}
+
+func (h *Handler) handleCourierRating(c *gin.Context) {
+	var data shared.CourierRatingRequest
+	if err := c.ShouldBindJSON(&data); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "failure",
+			"err":     err,
+		})
+		return
+	}
+
+	response, err := h.Services.RateDelivery(shared.RatingRequest{
+		IsCustomerRating: false,
+		CourierRating:    data,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "failure",
+			"err":     err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "success",
+		"data":    response,
+	})
+
+}
+
 func (h *Handler) GetDeliveryCost(c *gin.Context) {
 	var quoteRequest shared.GetDeliveryCostRequest
 	if err := c.ShouldBindJSON(&quoteRequest); err != nil {

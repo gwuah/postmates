@@ -45,3 +45,55 @@ Heroku Endpoint
     message: "success"
 }
 ```
+
+### Rate Delivery (Customer)
+
+`/v1/customer-rate-trip`
+
+**method:** POST
+
+**data params:**
+
+```
+{
+    deliveryId: 1,
+    rating: 5,
+    message: "Good Service",
+    customerId: 1
+}
+```
+
+**response:**
+
+```
+{
+    data: true,
+    message: "success"
+}
+```
+
+### Rate Delivery (Courier)
+
+`/v1/courier-rate-trip`
+
+**method:** POST
+
+**data params:**
+
+```
+{
+    deliveryId: 1,
+    rating: 5,
+    message: "Good Service",
+    courierId: 1
+}
+```
+
+**response:**
+
+```
+{
+    data: true,
+    message: "success"
+}
+```

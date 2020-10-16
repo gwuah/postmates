@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"fmt"
+
 	"github.com/electra-systems/core-api/database/models"
 	"github.com/electra-systems/core-api/shared"
 	"gorm.io/gorm/clause"
@@ -48,4 +50,24 @@ func (r *Repository) UpdateDelivery(id uint, data map[string]interface{}) (*mode
 	}
 
 	return &delivery, nil
+}
+
+func (r *Repository) Count(condition string) (int64, error) {
+	var count int64
+	if err := r.DB.Model(&models.Delivery{}).Where(condition).Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func (r *Repository) Sum(condition string, field string) (int64, error) {
+	var count int64
+	response := r.DB.Model(&models.Delivery{}).Where(condition).Select(fmt.Sprintf("sum(%s)", field))
+
+	if err := response.Error; err != nil {
+		return 0, err
+	}
+
+	response.Scan(&count)
+	return count, nil
 }

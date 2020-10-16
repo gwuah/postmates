@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/electra-systems/core-api/shared"
@@ -16,6 +17,89 @@ type GetDeliveryCostResponse struct {
 	Estimates map[uint]PricePerProduct `json:"estimate"`
 	Distance  float64                  `json:"distance"`
 	Duration  float64                  `json:"duration"`
+}
+
+func (s *Services) RateDelivery(data shared.RatingRequest) (bool, error) {
+	// BUG ALERT
+	// ONLY SEARCH THROUGH TRIPS THAT HAVE STATUS == "COMPLETED"
+
+	if data.IsCustomerRating {
+		delivery, err := s.repo.UpdateDelivery(data.CustomerRating.DeliveryId, map[string]interface{}{
+			"CustomerRating":        data.CustomerRating.Rating,
+			"CustomerRatingMessage": data.CustomerRating.Message,
+		})
+		if err != nil {
+			return false, err
+		}
+
+		delivery, err = s.repo.FindDelivery(data.CustomerRating.DeliveryId, false)
+		if err != nil {
+			return false, err
+		}
+
+		condition := fmt.Sprintf("courier_id = %d", *delivery.CourierID)
+
+		totalTrips, err := s.repo.Count(condition)
+		if err != nil {
+			return false, err
+		}
+
+		totalRatings, err := s.repo.Sum(condition, "customer_rating")
+		if err != nil {
+			return false, err
+		}
+
+		averageRating := totalRatings / totalTrips
+
+		_, err = s.repo.UpdateCourier(*delivery.CourierID, map[string]interface{}{
+			"Rating": averageRating,
+		})
+
+		if err != nil {
+			return false, err
+		}
+
+	} else {
+
+		delivery, err := s.repo.UpdateDelivery(data.CourierRating.DeliveryId, map[string]interface{}{
+			"CourierRating":        data.CourierRating.Rating,
+			"CourierRatingMessage": data.CourierRating.Message,
+		})
+
+		if err != nil {
+			return false, err
+		}
+
+		delivery, err = s.repo.FindDelivery(data.CourierRating.DeliveryId, false)
+		if err != nil {
+			return false, err
+		}
+
+		condition := fmt.Sprintf("customer_id = %d", delivery.CustomerID)
+
+		totalTrips, err := s.repo.Count(condition)
+		if err != nil {
+			return false, err
+		}
+
+		totalRatings, err := s.repo.Sum(condition, "courier_rating")
+		if err != nil {
+			return false, err
+		}
+
+		averageRating := totalRatings / totalTrips
+
+		_, err = s.repo.UpdateCustomer(delivery.CustomerID, map[string]interface{}{
+			"Rating": averageRating,
+		})
+
+		if err != nil {
+			return false, err
+		}
+
+	}
+
+	return true, nil
 }
 
 func (s *Services) GetDeliveryCost(data shared.GetDeliveryCostRequest) (*GetDeliveryCostResponse, error) {
