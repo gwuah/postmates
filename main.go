@@ -51,7 +51,7 @@ func main() {
 	)
 
 	if err != nil {
-		log.Fatal("failed To Setup Tables")
+		log.Fatal("failed To Setup Tables", err)
 	}
 
 	database.RunSeeds(db, []database.SeedFn{

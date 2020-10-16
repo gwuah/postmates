@@ -11,7 +11,7 @@ const (
 	DeliveryOngoing       = "delivery_ongoing"
 	NearingDropoff        = "nearing_dropoff"
 	AtDropOff             = "at_dropoff"
-	Delivered             = "delivered"
+	Completed             = "completed"
 	Cancelled             = "cancelled"
 
 	// courier state types
@@ -30,21 +30,24 @@ const (
 
 type Delivery struct {
 	Model
-	State                State        `json:"state"`
-	OriginLongitude      float64      `json:"originLongitude"`
-	OriginLatitude       float64      `json:"originLatitude"`
-	DestinationLongitude float64      `json:"destinationLongitude"`
-	DestinationLatitude  float64      `json:"destinationLatitude"`
-	Rating               float64      `json:"rating"`
-	FinalCost            float64      `json:"finalCost"`
-	InitialCost          float64      `json:"initialCost"`
-	Completed            bool         `json:"completed"`
-	Notes                string       `json:"notes"`
-	CustomerID           uint         `json:"customerId"`
-	Customer             Customer     `json:"customer"`
-	ProductID            uint         `json:"productId"`
-	Product              Product      `json:"product"`
-	CourierID            *uint        `json:"courierId,omitempty"`
-	Courier              *Courier     `json:"courier,omitempty"`
-	TripPoints           []*TripPoint `json:"tripPoints,omitempty"`
+	State                 State        `json:"state"`
+	OriginLongitude       float64      `json:"originLongitude"`
+	OriginLatitude        float64      `json:"originLatitude"`
+	DestinationLongitude  float64      `json:"destinationLongitude"`
+	DestinationLatitude   float64      `json:"destinationLatitude"`
+	FinalCost             float64      `json:"finalCost"`
+	InitialCost           float64      `json:"initialCost"`
+	Completed             bool         `json:"completed"`
+	Notes                 string       `json:"notes"`
+	CustomerID            uint         `json:"customerId"`
+	Customer              Customer     `json:"customer"`
+	ProductID             uint         `json:"productId"`
+	Product               Product      `json:"product"`
+	CourierID             *uint        `json:"courierId,omitempty"`
+	Courier               *Courier     `json:"courier,omitempty"`
+	TripPoints            []*TripPoint `json:"tripPoints,omitempty"`
+	CourierRating         float64      `json:"courierRating"`
+	CourierRatingMessage  string       `json:"courierRatingMessage"`
+	CustomerRating        float64      `json:"customerRating"`
+	CustomerRatingMessage string       `json:"customerRatingMessage"`
 }

@@ -98,3 +98,25 @@ type GetDeliveryCostRequest struct {
 	Origin      Coord `json:"origin" validate:"required"`
 	Destination Coord `json:"destination" validate:"required"`
 }
+
+type BaseRating struct {
+	DeliveryId uint   `json:"deliveryId" validate:"required"`
+	Rating     int    `json:"rating" validate:"required"`
+	Message    string `json:"message"`
+}
+
+type CustomerRatingRequest struct {
+	BaseRating
+	CustomerId uint `json:"customerId" validate:"required"`
+}
+
+type CourierRatingRequest struct {
+	BaseRating
+	CourierId uint `json:"courierId" validate:"required"`
+}
+
+type RatingRequest struct {
+	IsCustomerRating bool
+	CustomerRating   CustomerRatingRequest
+	CourierRating    CourierRatingRequest
+}
