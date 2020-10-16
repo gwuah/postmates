@@ -50,3 +50,20 @@ Curr Version
     }
 }
 ```
+
+**response:**
+```
+{
+    data: {
+        estimate: {
+            1: {
+                productId: 1,
+                price: 5
+            }
+        },
+        distance: 2.3166666666666664,
+        duration: 319
+    },
+    message: "success"
+}
+```
