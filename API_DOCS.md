@@ -1,10 +1,9 @@
 # Docs
 
-Heroku Endpoint
+Heroku Endpoint -> 
 `https://electra-staging.herokuapp.com`
 
-## Curr Version
-
+Curr Version ->
 `v1`
 
 ### Get Delivery Quote
