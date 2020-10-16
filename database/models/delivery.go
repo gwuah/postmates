@@ -11,7 +11,7 @@ const (
 	DeliveryOngoing       = "delivery_ongoing"
 	NearingDropoff        = "nearing_dropoff"
 	AtDropOff             = "at_dropoff"
-	Delivered             = "delivered"
+	Completed             = "completed"
 	Cancelled             = "cancelled"
 
 	// courier state types

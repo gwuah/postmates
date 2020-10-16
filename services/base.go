@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/electra-systems/core-api/database/models"
 	"github.com/electra-systems/core-api/shared"
 )
 
@@ -20,8 +21,6 @@ type GetDeliveryCostResponse struct {
 }
 
 func (s *Services) RateDelivery(data shared.RatingRequest) (bool, error) {
-	// BUG ALERT
-	// ONLY SEARCH THROUGH TRIPS THAT HAVE STATUS == "COMPLETED"
 
 	if data.IsCustomerRating {
 		delivery, err := s.repo.UpdateDelivery(data.CustomerRating.DeliveryId, map[string]interface{}{
@@ -37,14 +36,14 @@ func (s *Services) RateDelivery(data shared.RatingRequest) (bool, error) {
 			return false, err
 		}
 
-		condition := fmt.Sprintf("courier_id = %d", *delivery.CourierID)
+		condition := fmt.Sprintf("courier_id = %d AND state = %s", *delivery.CourierID, models.Completed)
 
-		totalTrips, err := s.repo.Count(condition)
+		totalTrips, err := s.repo.DeliveryCount(condition)
 		if err != nil {
 			return false, err
 		}
 
-		totalRatings, err := s.repo.Sum(condition, "customer_rating")
+		totalRatings, err := s.repo.DeliverySum(condition, "customer_rating")
 		if err != nil {
 			return false, err
 		}
@@ -77,12 +76,12 @@ func (s *Services) RateDelivery(data shared.RatingRequest) (bool, error) {
 
 		condition := fmt.Sprintf("customer_id = %d", delivery.CustomerID)
 
-		totalTrips, err := s.repo.Count(condition)
+		totalTrips, err := s.repo.DeliveryCount(condition)
 		if err != nil {
 			return false, err
 		}
 
-		totalRatings, err := s.repo.Sum(condition, "courier_rating")
+		totalRatings, err := s.repo.DeliverySum(condition, "courier_rating")
 		if err != nil {
 			return false, err
 		}

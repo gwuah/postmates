@@ -52,7 +52,7 @@ func (r *Repository) UpdateDelivery(id uint, data map[string]interface{}) (*mode
 	return &delivery, nil
 }
 
-func (r *Repository) Count(condition string) (int64, error) {
+func (r *Repository) DeliveryCount(condition string) (int64, error) {
 	var count int64
 	if err := r.DB.Model(&models.Delivery{}).Where(condition).Count(&count).Error; err != nil {
 		return 0, err
@@ -60,7 +60,7 @@ func (r *Repository) Count(condition string) (int64, error) {
 	return count, nil
 }
 
-func (r *Repository) Sum(condition string, field string) (int64, error) {
+func (r *Repository) DeliverySum(condition string, field string) (int64, error) {
 	var count int64
 	response := r.DB.Model(&models.Delivery{}).Where(condition).Select(fmt.Sprintf("sum(%s)", field))
 
