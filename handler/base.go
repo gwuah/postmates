@@ -1,12 +1,13 @@
 package handler
 
 import (
+	"log"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"github.com/electra-systems/core-api/shared"
 	myValidator "github.com/electra-systems/core-api/utils/validator"
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 func (h *Handler) GetDeliveryCost(c *gin.Context) {
@@ -22,6 +23,7 @@ func (h *Handler) GetDeliveryCost(c *gin.Context) {
 
 	response, err := h.Services.GetDeliveryCost(quoteRequest)
 	if err != nil {
+		log.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "failure",
 			"err":     err,
