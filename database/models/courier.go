@@ -11,4 +11,5 @@ type Courier struct {
 	Vehicle    *Vehicle `json:"vehicle,omitempty"`
 	// Deliveries []Delivery `json:"deliveries"`
 	PhotoUrl string `json:"photoUrl"`
+	Rating   int    `json:"rating"`
 }
