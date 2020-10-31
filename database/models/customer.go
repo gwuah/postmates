@@ -23,4 +23,5 @@ type Customer struct {
 	Code      int     `json:"code"`
 	Active    bool    `json:"active" gorm:"default=false"`
 	Token     string  `json:"-"`
+	Rating    int     `json:"rating"`
 }

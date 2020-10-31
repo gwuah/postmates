@@ -57,6 +57,8 @@ func (h *Handler) Register(v1 *gin.RouterGroup) {
 	v1.GET("/courier/realtime/:id", h.handleConnection("courier"))
 	v1.POST("/get-closest-couriers", h.GetClosestCouriers)
 	v1.POST("/get-delivery-cost", h.GetDeliveryCost)
+	v1.POST("/customer-rate-trip", h.handleCustomerRating)
+	v1.POST("/courier-rate-trip", h.handleCourierRating)
 
 	v1.GET("/refresh/:token", h.Refresh)
 
