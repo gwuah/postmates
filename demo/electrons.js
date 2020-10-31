@@ -46,6 +46,8 @@ class Courier {
     this.ws.on("error", (data) =>{
       console.log("Error connecting", data);
     });
+
+    this._sendLocationUpdate()
   }
 
   _handleNewDelivery(parsed) {
@@ -75,7 +77,7 @@ class Courier {
           meta: {
             type: "LocationUpdate",
           },
-          id: id,
+          id: this.appState.id,
           latitude: this.appState.coord.latitude,
           longitude: this.appState.coord.longitude,
           state: this.appState.state,

@@ -78,10 +78,6 @@ func main() {
 		Password: os.Getenv("REDIS_PASSWORD"),
 	})
 
-	if err != nil {
-		log.Fatal("failed to initialize mapbox", err)
-	}
-
 	s := server.New()
 	h := handler.New(db, jwt, sec, redisDB)
 
