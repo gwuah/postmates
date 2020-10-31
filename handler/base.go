@@ -28,7 +28,7 @@ func (h *Handler) handleCustomerRating(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "failure",
-			"err":     err,
+			"err":     err.Error(),
 		})
 		return
 	}
