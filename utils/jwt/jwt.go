@@ -64,7 +64,6 @@ func (s Service) ParseToken(authHeader string) (*jwt.Token, error) {
 func (s Service) GenerateToken(customer *models.Customer) (string, error) {
 	return jwt.NewWithClaims(s.algo, jwt.MapClaims{
 		"phone": customer.Phone,
-		"email": customer.Email,
 		"exp":   time.Now().Add(s.ttl).Unix(),
 	}).SignedString(s.key)
 

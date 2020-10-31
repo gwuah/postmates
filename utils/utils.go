@@ -39,6 +39,11 @@ func ConvertToUint64(num string) uint64 {
 	return id64
 }
 
+func ConvertToInt(num string) int {
+	id64, _ := strconv.ParseInt(num, 10, 64)
+	return int(id64)
+}
+
 func ConvertToVehicleType(id string) models.VehicleType {
 	switch strings.ToLower(id) {
 	case "motor":
