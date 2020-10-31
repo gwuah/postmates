@@ -48,6 +48,7 @@ func New(DB *gorm.DB, jwt jwt.Service, sec *secure.Service, redisDB *redis.Clien
 		RedisDB:              redisDB,
 		SMS:                  SMS,
 		Eta:                  eta,
+		Sec:                  sec,
 	}
 }
 
@@ -59,15 +60,13 @@ func (h *Handler) Register(v1 *gin.RouterGroup) {
 	v1.POST("/customer-rate-trip", h.handleCustomerRating)
 	v1.POST("/courier-rate-trip", h.handleCourierRating)
 
-	v1.POST("/signup", h.Signup)
-	v1.POST("/login", h.Login)
-	v1.POST("/otp/verify", h.VerifyOTP)
 	v1.GET("/refresh/:token", h.Refresh)
 
 	//  middleware.JWT(h.JWT)
 	customers := v1.Group("/customers")
 	customers.GET("/", h.ListCustomers)
 	customers.GET("/:id", h.ViewCustomer)
-	customers.POST("/", h.CreateCustomer)
+	customers.POST("/signup", h.SignupCustomer)
+	customers.POST("/login", h.LoginCustomer)
 
 }

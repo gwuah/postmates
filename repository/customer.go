@@ -4,6 +4,17 @@ import (
 	"github.com/electra-systems/core-api/database/models"
 )
 
+func (r *Repository) FindCustomerByQuery(query string) (*models.Customer, error) {
+
+	var customer models.Customer
+
+	if err := r.DB.Where(query).First(&customer).Error; err != nil {
+		return nil, err
+	}
+
+	return &customer, nil
+}
+
 func (r *Repository) FindCustomerByPhone(phone string) (*models.Customer, error) {
 
 	customer := models.Customer{}
@@ -16,12 +27,11 @@ func (r *Repository) FindCustomerByPhone(phone string) (*models.Customer, error)
 	return &customer, nil
 }
 
-func (r *Repository) CreateCustomerWithPhone(phone string) (*models.Customer, error) {
+func (r *Repository) CreateCustomerWithPhoneAndCode(phone string, code int) (*models.Customer, error) {
 
-	customer := models.Customer{Phone: phone}
-	err := r.DB.Create(&customer).Error
+	customer := models.Customer{Phone: phone, Code: code}
 
-	if err != nil {
+	if err := r.DB.Create(&customer).Error; err != nil {
 		return nil, err
 	}
 

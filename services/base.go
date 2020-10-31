@@ -36,6 +36,10 @@ func (s *Services) RateDelivery(data shared.RatingRequest) (bool, error) {
 			return false, err
 		}
 
+		if delivery.State != models.Completed {
+			return false, errors.New("delivery not completed")
+		}
+
 		condition := fmt.Sprintf("courier_id = %d AND state = %s", *delivery.CourierID, models.Completed)
 
 		totalTrips, err := s.repo.DeliveryCount(condition)
