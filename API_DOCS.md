@@ -1,10 +1,20 @@
 # Docs
 
-Heroku Endpoint -> 
+Heroku Endpoint ->
 `https://electra-staging.herokuapp.com`
 
 Curr Version ->
 `v1`
+
+### Courier can initiate connection @
+
+`/courier/realtime/:id`
+
+### Customer can initiate connection @
+
+`/customer/realtime/:id`
+
+see `handler/ws.go` and `handler/handler.go` for more details with regards to realtime connections.
 
 ### Get Delivery Quote
 
