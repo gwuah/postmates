@@ -3,7 +3,7 @@ package repository
 import (
 	"errors"
 
-	"github.com/electra-systems/core-api/database/models"
+	"github.com/gwuah/postmates/database/models"
 )
 
 func (r *Repository) FindProduct(id uint) (*models.Product, error) {

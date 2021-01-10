@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/electra-systems/core-api/database/models"
-	"github.com/electra-systems/core-api/lib/ws"
-	"github.com/electra-systems/core-api/shared"
+	"github.com/gwuah/postmates/database/models"
+	"github.com/gwuah/postmates/lib/ws"
+	"github.com/gwuah/postmates/shared"
 )
 
 type CourierWithEta struct {

@@ -6,10 +6,10 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/electra-systems/core-api/middleware"
-	"github.com/electra-systems/core-api/utils/validator"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"github.com/gwuah/postmates/middleware"
+	"github.com/gwuah/postmates/utils/validator"
 )
 
 type Config struct {

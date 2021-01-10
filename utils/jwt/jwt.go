@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/electra-systems/core-api/database/models"
+	"github.com/gwuah/postmates/database/models"
 )
 
 var minSecretLen = 128

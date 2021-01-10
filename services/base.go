@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/electra-systems/core-api/database/models"
-	"github.com/electra-systems/core-api/shared"
+	"github.com/gwuah/postmates/database/models"
+	"github.com/gwuah/postmates/shared"
 )
 
 type PricePerProduct struct {

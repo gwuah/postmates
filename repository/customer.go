@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/electra-systems/core-api/database/models"
+	"github.com/gwuah/postmates/database/models"
 )
 
 func (r *Repository) FindCustomerByQuery(query string) (*models.Customer, error) {

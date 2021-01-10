@@ -3,7 +3,7 @@
 This is the heart of a theoretical delivery service. <br/>
 Features include geo-indexing, order-dispatch, proximity-searching, ETA, trip estimates, etc <br/>
 We leverage google maps for features such as distance-matrix to enable us sort couriers in ascending order. <br/>
-Find more documentation [here](https://github.com/electra-systems/core-api/blob/master/API_DOCS.md)
+Find more documentation [here](https://github.com/gwuah/postmates/blob/master/API_DOCS.md)
 
 # Inbuilt Features
 

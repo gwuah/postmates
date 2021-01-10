@@ -1,10 +1,10 @@
 package services
 
 import (
-	"github.com/electra-systems/core-api/lib/billing"
-	"github.com/electra-systems/core-api/lib/eta"
-	"github.com/electra-systems/core-api/lib/ws"
-	"github.com/electra-systems/core-api/repository"
+	"github.com/gwuah/postmates/lib/billing"
+	"github.com/gwuah/postmates/lib/eta"
+	"github.com/gwuah/postmates/lib/ws"
+	"github.com/gwuah/postmates/repository"
 )
 
 type Services struct {

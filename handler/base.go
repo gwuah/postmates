@@ -4,10 +4,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/electra-systems/core-api/shared"
-	myValidator "github.com/electra-systems/core-api/utils/validator"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/gwuah/postmates/shared"
+	myValidator "github.com/gwuah/postmates/utils/validator"
 )
 
 func (h *Handler) handleCustomerRating(c *gin.Context) {

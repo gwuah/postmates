@@ -3,8 +3,8 @@ package handler
 import (
 	"net/http"
 
-	"github.com/electra-systems/core-api/database/models"
 	"github.com/gin-gonic/gin"
+	"github.com/gwuah/postmates/database/models"
 )
 
 func (h *Handler) Refresh(c *gin.Context) {

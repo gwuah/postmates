@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/electra-systems/core-api/database/models"
-	"github.com/electra-systems/core-api/lib/ws"
-	"github.com/electra-systems/core-api/shared"
-	"github.com/electra-systems/core-api/utils"
+	"github.com/gwuah/postmates/database/models"
+	"github.com/gwuah/postmates/lib/ws"
+	"github.com/gwuah/postmates/shared"
+	"github.com/gwuah/postmates/utils"
 )
 
 func (s *Services) CreateDelivery(data shared.DeliveryRequest) (*models.Delivery, error) {

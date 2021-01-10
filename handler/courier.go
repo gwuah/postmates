@@ -5,8 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"github.com/electra-systems/core-api/shared"
-	myValidator "github.com/electra-systems/core-api/utils/validator"
+	"github.com/gwuah/postmates/shared"
+	myValidator "github.com/gwuah/postmates/utils/validator"
 )
 
 type closestCourierResponse struct {

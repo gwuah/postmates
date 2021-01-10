@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/electra-systems/core-api/shared"
+	"github.com/gwuah/postmates/shared"
 
 	"googlemaps.github.io/maps"
 )

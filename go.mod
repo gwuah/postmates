@@ -1,4 +1,4 @@
-module github.com/electra-systems/core-api
+module https: //github.com/gwuah/postmates
 
 go 1.14
 

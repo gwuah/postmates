@@ -3,16 +3,16 @@ package handler
 import (
 	"os"
 
-	"github.com/electra-systems/core-api/lib/billing"
-	"github.com/electra-systems/core-api/lib/eta"
-	"github.com/electra-systems/core-api/lib/sms"
-	"github.com/electra-systems/core-api/lib/ws"
-	"github.com/electra-systems/core-api/repository"
-	"github.com/electra-systems/core-api/services"
-	"github.com/electra-systems/core-api/utils/jwt"
-	"github.com/electra-systems/core-api/utils/secure"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
+	"github.com/gwuah/postmates/lib/billing"
+	"github.com/gwuah/postmates/lib/eta"
+	"github.com/gwuah/postmates/lib/sms"
+	"github.com/gwuah/postmates/lib/ws"
+	"github.com/gwuah/postmates/repository"
+	"github.com/gwuah/postmates/services"
+	"github.com/gwuah/postmates/utils/jwt"
+	"github.com/gwuah/postmates/utils/secure"
 	"gorm.io/gorm"
 )
 

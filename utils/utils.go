@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/electra-systems/core-api/database/models"
-	"github.com/electra-systems/core-api/shared"
+	"github.com/gwuah/postmates/database/models"
+	"github.com/gwuah/postmates/shared"
 )
 
 var table = [...]byte{'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'}

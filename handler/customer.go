@@ -5,10 +5,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/electra-systems/core-api/database/models"
-	"github.com/electra-systems/core-api/lib/sms"
-	"github.com/electra-systems/core-api/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/gwuah/postmates/database/models"
+	"github.com/gwuah/postmates/lib/sms"
+	"github.com/gwuah/postmates/utils"
 	"gorm.io/gorm"
 )
 

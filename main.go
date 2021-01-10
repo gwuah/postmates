@@ -6,14 +6,14 @@ import (
 	"log"
 	"os"
 
-	"github.com/electra-systems/core-api/database"
-	"github.com/electra-systems/core-api/database/models"
-	"github.com/electra-systems/core-api/database/postgres"
-	"github.com/electra-systems/core-api/database/redis"
-	"github.com/electra-systems/core-api/handler"
-	"github.com/electra-systems/core-api/server"
-	"github.com/electra-systems/core-api/utils/jwt"
-	"github.com/electra-systems/core-api/utils/secure"
+	"github.com/gwuah/postmates/database"
+	"github.com/gwuah/postmates/database/models"
+	"github.com/gwuah/postmates/database/postgres"
+	"github.com/gwuah/postmates/database/redis"
+	"github.com/gwuah/postmates/handler"
+	"github.com/gwuah/postmates/server"
+	"github.com/gwuah/postmates/utils/jwt"
+	"github.com/gwuah/postmates/utils/secure"
 	"github.com/joho/godotenv"
 )
 
