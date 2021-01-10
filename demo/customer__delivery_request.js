@@ -1,10 +1,5 @@
 const WebSocket = require("ws");
 
-const origin = {
-  latitude: 5.6796946725653745,
-  longitude: -0.2447180449962616,
-};
-
 function connect(id) {
   console.log(`Customer ${id} initating a connection ... `);
   let ws = new WebSocket(`ws://localhost:8080/v1/customer/realtime/${id}`);
@@ -21,7 +16,10 @@ function connect(id) {
           productId: 1,
           customerID: 1,
           notes: "Handle it carefully",
-          origin,
+          origin: {
+            latitude: 5.6796946725653745,
+            longitude: -0.2447180449962616,
+          },
           destination: {
             longitude: 2.4345545,
             latitude: 4.054594095,
@@ -34,7 +32,6 @@ function connect(id) {
   ws.on("message", function (data) {
     let parsed = JSON.parse(data);
     console.log(JSON.stringify(parsed, null, 4));
-    // console.log(data);
   });
 
   ws.on("error", function (data) {
@@ -43,7 +40,7 @@ function connect(id) {
 }
 
 function main() {
-  connect(process.argv[2]);
+  connect("PostMaster");
 }
 
 main();

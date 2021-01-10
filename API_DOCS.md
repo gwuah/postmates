@@ -1,11 +1,5 @@
 # Docs
 
-Heroku Endpoint ->
-`https://electra-staging.herokuapp.com`
-
-Curr Version ->
-`v1`
-
 ### Courier can initiate connection @
 
 `/courier/realtime/:id`
@@ -65,10 +59,10 @@ see `handler/ws.go` and `handler/handler.go` for more details with regards to re
 
 ```
 {
-    deliveryId: 1,
-    rating: 5,
     message: "Good Service",
-    customerId: 1
+    deliveryId: 1,
+    customerId: 1,
+    rating: 5
 }
 ```
 
@@ -76,8 +70,8 @@ see `handler/ws.go` and `handler/handler.go` for more details with regards to re
 
 ```
 {
-    data: true,
     message: "success"
+    data: true
 }
 ```
 
@@ -91,10 +85,10 @@ see `handler/ws.go` and `handler/handler.go` for more details with regards to re
 
 ```
 {
-    deliveryId: 1,
-    rating: 5,
     message: "Good Service",
+    deliveryId: 1,
     courierId: 1
+    rating: 5
 }
 ```
 
@@ -102,7 +96,7 @@ see `handler/ws.go` and `handler/handler.go` for more details with regards to re
 
 ```
 {
-    data: true,
     message: "success"
+    data: true
 }
 ```

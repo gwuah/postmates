@@ -1,8 +1,8 @@
 const WebSocket = require("ws");
 
 function connect(id) {
-  console.log(`Courier ${id} initating a connection ... `);
-  let ws = new WebSocket(`ws://localhost:8080/v1/courier/realtime/${id}`);
+  console.log(`Customer ${id} initating a connection ... `);
+  let ws = new WebSocket(`ws://localhost:8080/v1/customer/realtime/${id}`);
 
   ws.on("open", (e) => {
     console.log("connection successful");
@@ -11,24 +11,28 @@ function connect(id) {
       ws.send(
         JSON.stringify({
           meta: {
-            type: "LocationUpdate",
+            type: "GetClosestCouriers",
           },
           id: id,
-          latitude: 5.688153174273126,
-          longitude: -0.24204731120789802,
+          origin: {
+            latitude: 5.6796946725653745,
+            longitude: -0.2447180449962616,
+          },
         })
       );
     }, 2000);
   });
 
   ws.on("message", function (data) {
-    console.log("Location Indexed", data);
+    console.log(data);
   });
 
   ws.on("error", function (data) {
     console.log("Error connecting");
   });
 }
+
+function parseMessage(message) {}
 
 function main() {
   connect(process.argv[2]);

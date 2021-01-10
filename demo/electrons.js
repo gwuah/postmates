@@ -39,21 +39,27 @@ class Courier {
       `ws://localhost:8080/v1/courier/realtime/${this.appState.id}`
     );
 
-    this.ws.on("message",  (msg) => {
-      this.handleMessage(msg)
-    })
+    this.ws.on("message", (msg) => {
+      console.log("new message");
+      this.handleMessage(msg);
+    });
 
-    this.ws.on("error", (data) =>{
+    this.ws.on("error", (data) => {
       console.log("Error connecting", data);
     });
 
-    this._sendLocationUpdate()
+    console.log(`Courier ${this.appState.id} has been instantiated.`);
+
+    this._sendLocationUpdate();
   }
 
   _handleNewDelivery(parsed) {
     console.log(`NewDeliveryRequest Recieved ${this.appState.id} `);
     if (this.appState.id == "2") {
-      console.log(`ID(${this.appState.id}) >>> `, JSON.stringify(parsed, null, 4));
+      console.log(
+        `ID(${this.appState.id}) >>> `,
+        JSON.stringify(parsed, null, 4)
+      );
       this.appState.current_delivery = parsed.delivery;
       this.ws.send(
         JSON.stringify({
@@ -97,14 +103,13 @@ class Courier {
   }
 }
 
-
 function main() {
-  var c1 = new Courier("1", defaultCabPositions[0])
-  c1._initialization()
-  var c2 = new Courier("2", defaultCabPositions[1])
-  c2._initialization()
-  var c3 = new Courier("3", defaultCabPositions[2])
-  c3._initialization()
+  var c1 = new Courier("1", defaultCabPositions[0]);
+  c1._initialization();
+  var c2 = new Courier("2", defaultCabPositions[1]);
+  c2._initialization();
+  var c3 = new Courier("3", defaultCabPositions[2]);
+  c3._initialization();
 }
 
 main();
