@@ -1,4 +1,4 @@
-module https: //github.com/gwuah/postmates
+module github.com/gwuah/postmates
 
 go 1.14
 
