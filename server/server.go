@@ -57,7 +57,7 @@ func Start(e *Server, cfg *Config) {
 		if err == http.ErrServerClosed {
 			log.Println("Server Closed After Interruption")
 		} else {
-			log.Println("Unexpected Server Shutdown")
+			log.Println("Unexpected Server Shutdown. err:", err)
 		}
 	}
 }
