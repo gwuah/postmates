@@ -31,7 +31,17 @@ services:
     depends_on:
       - postgres
       - redis
-    command: sh -c "/wait && ./postmates-app"
+      - waiter
+
+  waiter:
+    build:
+      dockerfile: ./Dockerfile.wait
+      context: .
+    container_name: postmates-waiter
+    depends_on: 
+      - postgres
+      - redis
+
     environment:
       - WAIT_HOSTS=postgres:5432, redis:6379
       - WAIT_HOSTS_TIMEOUT=300
