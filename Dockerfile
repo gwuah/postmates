@@ -19,6 +19,7 @@ FROM alpine
 
 WORKDIR /app
 COPY --from=main-env /app/postmates-app /app
+COPY --from=main-env /app/database /app/database
 COPY .env /app/.env
 
 # Add docker-compose-wait tool -------------------
