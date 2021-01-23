@@ -20,6 +20,11 @@ FROM alpine
 WORKDIR /app
 COPY --from=main-env /app/postmates-app /app
 COPY .env /app/.env
+
+# Add docker-compose-wait tool -------------------
+ENV WAIT_VERSION 2.7.3
+ADD https://github.com/ufoscout/docker-compose-wait/releases/download/$WAIT_VERSION/wait /wait
+RUN chmod +x /wait
 EXPOSE $PORT
 
-ENTRYPOINT ./postmates-app
+CMD ["postmates-app"]
