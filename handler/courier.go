@@ -24,7 +24,7 @@ func (h *Handler) GetClosestCouriers(c *gin.Context) {
 		}
 	}
 
-	couriersWithEta, err := h.Services.GetClosestCouriers(data.Origin, 2)
+	couriersWithEta, err := h.Services.GetClosestCouriers(data.Origin, 1)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

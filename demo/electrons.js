@@ -1,26 +1,12 @@
 const WebSocket = require("ws");
 
-const outsideScope = {
-  latitude: 5.698188535023582,
-  longitude: -0.239341780857103,
-};
 
 const defaultCabPositions = [
-  {
-    longitude: -0.2475990969444747,
-    latitude: 5.684136332305188,
-    color: "blue",
-  },
-  {
-    longitude: -0.2397266058667604,
-    latitude: 5.683835847589247,
-    color: "blue",
-  },
-  {
-    longitude: -0.24460022375167725,
-    latitude: 5.677474538991623,
-    color: "blue",
-  },
+  { latitude: 5.68435947053963, longitude: -0.25092702358961105, color: "blue", name: "GGG"},
+  { latitude: 5.682181546392756, longitude: -0.25024037808179855, color: "blue", name: "HHH" },
+  { latitude: 5.682565886546736, longitude: -0.24792294949293137, color: "blue", name: "III" },
+  { latitude: 5.685000034897074, longitude: -0.244661383330822, color: "blue", name: "BBB" },
+  { latitude: 5.685597894320817, longitude: -0.24564843624830246, color: "blue", name: "CCC" },
 ];
 
 class Courier {
@@ -55,7 +41,7 @@ class Courier {
 
   _handleNewDelivery(parsed) {
     console.log(`NewDeliveryRequest Recieved ${this.appState.id} `);
-    if (this.appState.id == "2") {
+    if (this.appState.id == "III") {
       console.log(
         `ID(${this.appState.id}) >>> `,
         JSON.stringify(parsed, null, 4)
@@ -90,6 +76,7 @@ class Courier {
           deliveryId,
         })
       );
+      console.log("courier"+ this.appState.id + " sending location updates")
     }, 3000);
   }
 
@@ -104,12 +91,16 @@ class Courier {
 }
 
 function main() {
-  var c1 = new Courier("1", defaultCabPositions[0]);
+  var c1 = new Courier("GGG", defaultCabPositions[0]);
   c1._initialization();
-  var c2 = new Courier("2", defaultCabPositions[1]);
+  var c2 = new Courier("HHH", defaultCabPositions[1]);
   c2._initialization();
-  var c3 = new Courier("3", defaultCabPositions[2]);
+  var c3 = new Courier("III", defaultCabPositions[2]);
   c3._initialization();
+  var c4 = new Courier("BBB", defaultCabPositions[3]);
+  c4._initialization();
+  var c5 = new Courier("CCC", defaultCabPositions[4]);
+  c5._initialization();
 }
 
 main();

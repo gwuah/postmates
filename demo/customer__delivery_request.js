@@ -17,12 +17,12 @@ function connect(id) {
           customerID: 1,
           notes: "Handle it carefully",
           origin: {
-            latitude: 5.6796946725653745,
-            longitude: -0.2447180449962616,
+            latitude: 5.683704379865978, 
+            longitude: -0.24667987691595838,
           },
           destination: {
-            longitude: 2.4345545,
-            latitude: 4.054594095,
+            latitude: 5.5952893396562615, 
+            longitude: -0.23337027814121614
           },
         })
       );

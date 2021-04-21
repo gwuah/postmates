@@ -2,7 +2,6 @@ package services
 
 import (
 	"encoding/json"
-	"errors"
 	"log"
 	"sort"
 	"time"
@@ -144,7 +143,7 @@ func (s *Services) GetClosestCouriers(destination shared.Coord, steps int) ([]sh
 	}
 
 	if len(couriersIds) == 0 {
-		return e, errors.New("no couriers available")
+		return e, nil
 	}
 
 	couriers, err := s.repo.GetAllCouriers(couriersIds)

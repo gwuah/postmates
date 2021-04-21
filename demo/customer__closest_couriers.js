@@ -15,8 +15,8 @@ function connect(id) {
           },
           id: id,
           origin: {
-            latitude: 5.6796946725653745,
-            longitude: -0.2447180449962616,
+            latitude: 5.683704379865978, 
+            longitude: -0.24667987691595838,
           },
         })
       );
