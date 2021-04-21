@@ -40,7 +40,7 @@ function connect(id) {
 }
 
 function main() {
-  connect("PostMaster");
+  connect("20");
 }
 
 main();

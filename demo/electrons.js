@@ -34,28 +34,28 @@ class Courier {
       console.log("Error connecting", data);
     });
 
-    console.log(`Courier ${this.appState.id} has been instantiated.`);
+    console.log(`Courier ${this.appState.id} has been instantiated & is sending location updates every 3 seconds`);
 
     this._sendLocationUpdate();
   }
 
   _handleNewDelivery(parsed) {
-    console.log(`NewDeliveryRequest Recieved ${this.appState.id} `);
-    if (this.appState.id == "III") {
-      console.log(
-        `ID(${this.appState.id}) >>> `,
-        JSON.stringify(parsed, null, 4)
-      );
-      this.appState.current_delivery = parsed.delivery;
-      this.ws.send(
-        JSON.stringify({
-          meta: {
-            type: "AcceptDelivery",
-          },
-          deliveryId: parsed.delivery.id,
-        })
-      );
-    }
+    console.log(`From Courier (${this.appState.id}) -> NewDeliveryRequest Recieved!`);
+    // if (this.appState.id == "III") {
+    //   console.log(
+    //     `ID(${this.appState.id}) >>> `,
+    //     JSON.stringify(parsed, null, 4)
+    //   );
+    //   this.appState.current_delivery = parsed.delivery;
+    //   this.ws.send(
+    //     JSON.stringify({
+    //       meta: {
+    //         type: "AcceptDelivery",
+    //       },
+    //       deliveryId: parsed.delivery.id,
+    //     })
+    //   );
+    // }
   }
 
   _sendLocationUpdate() {
@@ -76,7 +76,6 @@ class Courier {
           deliveryId,
         })
       );
-      console.log("courier"+ this.appState.id + " sending location updates")
     }, 3000);
   }
 
