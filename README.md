@@ -12,7 +12,7 @@ Find more documentation [here](https://github.com/gwuah/postmates/blob/master/AP
 - [x] order creation
 - [x] order dispatch
 - [x] order acceptance
-- [x] order order rejection
+- [x] order rejection
 - [x] customer login/signup
 - [x] customer ratings
 
