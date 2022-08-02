@@ -4,6 +4,7 @@ import (
 	"crypto/sha1"
 	"fmt"
 	"log"
+	"net"
 	"os"
 
 	"github.com/gwuah/postmates/database"
@@ -15,6 +16,9 @@ import (
 	"github.com/gwuah/postmates/utils/jwt"
 	"github.com/gwuah/postmates/utils/secure"
 	"github.com/joho/godotenv"
+	"google.golang.org/grpc"
+
+	pb "github.com/gwuah/postmates/api"
 )
 
 func main() {
@@ -84,7 +88,23 @@ func main() {
 	routes := s.Group("/v1")
 	h.Register(routes)
 
-	server.Start(&s, &server.Config{
-		Port: fmt.Sprintf(":%s", os.Getenv("PORT")),
-	})
+	close := make(chan bool)
+	go func() {
+		server.Start(&s, &server.Config{
+			Port: fmt.Sprintf(":%s", os.Getenv("PORT")),
+		})
+	}()
+
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", 7777))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+
+	gServer := grpc.NewServer()
+	pb.RegisterPostmatesServer(gServer, &server.GrpcServer{})
+	log.Printf("server listening at %v", lis.Addr())
+
+	if err := gServer.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
 }

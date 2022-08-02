@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+option go_package = "github.com/gwuah/postmates";
+
+message Customer {
+    string firstname = 1;
+    string lastname = 2;
+    string phone = 3;
+    int32 code = 4;
+}
+
+message SignupRequest {
+  string phone = 1;
+}
+
+message SignupResponse {
+  string phone = 1;
+  string message = 2;
+}
+
+service Postmates {
+  rpc Signup (SignupRequest) returns (SignupResponse) {}
+}

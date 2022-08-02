@@ -206,57 +206,49 @@ func (s *Services) DispatchDelivery(data shared.DeliveryRequest, delivery *model
 		return nil
 	}
 
-dispatchLogic:
+	maxRetry := 10
 
 	e, err := s.GetClosestCouriers(data.Origin, 2)
-
 	if err != nil {
 		return nil
 	}
 
-	delivery, err = s.repo.FindDelivery(delivery.ID, true)
-	if err != nil {
-		return nil
+	for i := 0; i < maxRetry; i++ {
+		for _, courier := range e {
+			conn := s.hub.GetCourier(courier.Courier.Id)
+			if conn == nil {
+				continue
+			}
+
+			convertedDeliveryRequest, err := json.Marshal(shared.NewDelivery{
+				Meta: shared.Meta{
+					Type: "NewDelivery",
+				},
+				Delivery:         delivery,
+				DistanceToPickup: courier.Distance,
+				DurationToPickup: courier.Duration,
+			})
+
+			if err != nil {
+				return nil
+			}
+
+			ticker := time.NewTicker(5 * time.Second)
+			conn.SendMessage(convertedDeliveryRequest)
+
+			select {
+			case <-ticker.C:
+				// move to next courier in queue
+			case <-conn.DeliveryAcceptanceAck:
+				// delivery has been accepted, exit
+				ticker.Stop()
+				foundCourierForOrder = true
+			}
+		}
 	}
 
-	ticker := time.NewTicker(5 * time.Second)
-
-courierLoop:
-	for _, courier := range e {
-		conn := s.hub.GetCourier(courier.Courier.Id)
-		if conn == nil {
-			continue
-		}
-
-		convertedDeliveryRequest, err := json.Marshal(shared.NewDelivery{
-			Meta: shared.Meta{
-				Type: "NewDelivery",
-			},
-			Delivery:         delivery,
-			DistanceToPickup: courier.Distance,
-			DurationToPickup: courier.Duration,
-		})
-
-		if err != nil {
-			return nil
-		}
-
-		conn.SendMessage(convertedDeliveryRequest)
-
-		select {
-		case <-ticker.C:
-			// move to next courier in queue
-		case <-conn.DeliveryAcceptanceAck:
-			// delivery has been accepted, exit
-			ticker.Stop()
-			foundCourierForOrder = true
-			break courierLoop
-		}
-
-	}
-
-	if !foundCourierForOrder {
-		goto dispatchLogic
+	if foundCourierForOrder {
+		//
 	}
 
 	return nil
