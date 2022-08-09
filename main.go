@@ -68,11 +68,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
+	
 	redisDB := redis.New(&redis.Config{
 		Addr:     os.Getenv("REDIS_ADDRESS"),
 		Password: os.Getenv("REDIS_PASSWORD"),
